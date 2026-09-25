@@ -18,3 +18,6 @@ challenge/
 output/
 
 6ab10eb3b23ba_student_resource/
+
+experiments/stage1/*_duplicate_*.csv
+experiments/stage2/validation_ground_truth.tsv

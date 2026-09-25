@@ -78,6 +78,39 @@ python src/data/missing_check.py
 python src/data/ground_truth_check.py
 ```
 
+Run the Stage 1 data audit (writes to `experiments/stage1/`; run
+`audit.py` and `ground_truth_analysis.py` before `audit_report.py`):
+
+```bash
+python src/data/audit.py
+python src/data/ground_truth_analysis.py
+python src/data/duplicate_analysis.py
+python src/data/missing_analysis.py
+python src/data/country_analysis.py
+python src/data/name_analysis.py
+python src/data/address_analysis.py
+python src/data/sample_inspection.py
+python src/data/ground_truth_examples.py
+python src/data/audit_report.py
+```
+
+Files are read with `engine="pyarrow"` (Arrow-backed strings), one file at a
+time, which keeps peak memory around 1 GB.
+
+Stage 2 evaluation engine (writes to `experiments/stage2/`):
+
+```bash
+python src/evaluation/validation_split.py   # deterministic 80/20 Source 1 split
+python src/evaluation/run_validation.py     # metric tests + reference baselines
+```
+
+The validation split holds out 20% of Source 1 entities, stratified by
+country x match count (random_state=42). Source 2 and Source 3 are never
+split; they stay the full reference universe. Score predictions with
+`evaluation.evaluator.evaluate_predictions(predictions, ground_truth)`,
+which returns the macro F0.5 used by the leaderboard (per Source 1
+entity, empty/empty = 1.0).
+
 Full pipeline (once implemented):
 
 ```bash

@@ -1,0 +1,110 @@
+BUSINESS ENTITY RESOLUTION
+STAGE 1 DATA AUDIT REPORT
+======================================================================
+
+DATASET SIZES
+----------------------------------------------------------------------
+train_source1           2,206,821 rows
+train_source2           5,034,616 rows
+train_source3           5,285,603 rows
+train_ground_truth      2,206,821 rows
+test_source1            1,732,544 rows
+test_source2            4,887,273 rows
+test_source3            5,082,316 rows
+
+GROUND TRUTH
+----------------------------------------------------------------------
+Source 1 entities:              2,206,821
+Entities with matches:          2,083,574
+Singleton entities:             123,247 (5.58%)
+Total positive links:           7,638,365
+Average matches/S1 (all):       3.4613
+Average matches/S1 (matched):   3.6660
+Maximum matches/S1:             11 (37 entities)
+
+SOURCE DISTRIBUTION
+----------------------------------------------------------------------
+S2 links:                       3,693,619
+S3 links:                       3,944,746
+Matched S1 with S2 and S3:      1,776,047
+Matched S1 with only S2:        143,029
+Matched S1 with only S3:        164,498
+S2 records never matched:     1,340,997 of 5,034,616 (26.64%)
+S2 records linked to >1 S1:   0
+S3 records never matched:     1,340,857 of 5,285,603 (25.37%)
+S3 records linked to >1 S1:   0
+
+VALIDATION CHECKS
+----------------------------------------------------------------------
+Invalid match prefixes:         0
+GT IDs missing from S1:         0
+S1 IDs missing from GT:         0
+Duplicate S1 rows in GT:        0
+Duplicate IDs within a list:    0
+GT S2 IDs missing from file:  0
+GT S3 IDs missing from file:  0
+Same-country links:             7,638,365
+Cross-country links:            0
+
+MATCH COUNT DISTRIBUTION
+----------------------------------------------------------------------
+ 0 matches:    123,247 S1 entities ( 5.58%)
+ 1 matches:    119,157 S1 entities ( 5.40%)
+ 2 matches:    375,212 S1 entities (17.00%)
+ 3 matches:    530,841 S1 entities (24.05%)
+ 4 matches:    484,115 S1 entities (21.94%)
+ 5 matches:    321,957 S1 entities (14.59%)
+ 6 matches:    164,868 S1 entities ( 7.47%)
+ 7 matches:     63,968 S1 entities ( 2.90%)
+ 8 matches:     18,680 S1 entities ( 0.85%)
+ 9 matches:      4,205 S1 entities ( 0.19%)
+10 matches:        534 S1 entities ( 0.02%)
+11 matches:         37 S1 entities ( 0.00%)
+
+BY SOURCE 1 COUNTRY (train)
+----------------------------------------------------------------------
+India       883,188 entities, 5.59% singletons, 3.465 avg matches
+US        1,323,633 entities, 5.58% singletons, 3.459 avg matches
+
+MISSING VALUES (NaN / blank)
+----------------------------------------------------------------------
+dataset               name     address   country
+train_source1            0           0         0
+train_source2            2     168,967         0
+train_source3           13     175,916         0
+test_source1             0           0         0
+test_source2            46     129,408         0
+test_source3            59     136,098         0
+
+DUPLICATES (rows repeating an earlier value; missing excluded)
+----------------------------------------------------------------------
+dataset                names   addresses   name+addr
+train_source1        667,592      76,215           0
+train_source2        632,606     528,388      25,688
+train_source3        633,982     476,923      18,641
+test_source1         493,677      55,061           0
+test_source2         576,187     533,082      22,468
+test_source3         560,329     489,783      16,110
+
+COUNTRIES
+----------------------------------------------------------------------
+train_source1    US=1,323,633, India=883,188
+train_source2    US=3,016,817, India=2,017,799
+train_source3    US=3,170,056, India=2,115,547
+test_source1     India=809,986, US=663,106, France=259,452
+test_source2     India=2,312,565, US=1,871,330, France=703,378
+test_source3     India=2,405,000, US=1,945,701, France=731,615
+Countries in train:  ['India', 'US']
+Countries in test:   ['France', 'India', 'US']
+Test-only countries: ['France']
+
+TEXT LENGTHS (characters: median / mean / p95; words: median)
+----------------------------------------------------------------------
+train_source1    name   24 /  24.0 /   37, 4 words   address   41 /  52.1 /  103, 7 words
+train_source2    name   25 /  25.1 /   40, 4 words   address   37 /  47.8 /   97, 6 words
+train_source3    name   25 /  25.2 /   42, 4 words   address   42 /  48.3 /   92, 6 words
+test_source1     name   24 /  23.8 /   36, 4 words   address   50 /  57.2 /  105, 8 words
+test_source2     name   25 /  25.7 /   42, 4 words   address   43 /  51.8 /   99, 7 words
+test_source3     name   25 /  25.7 /   42, 4 words   address   44 /  50.1 /   95, 7 words
+
+See observed_patterns.md for qualitative noise patterns and the decision table.

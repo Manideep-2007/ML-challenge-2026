@@ -1,0 +1,16 @@
+split,file,country_raw,country_normalized,count,pct_of_file
+train,train_source1.tsv,US,us,1323633,59.98
+train,train_source1.tsv,India,india,883188,40.02
+train,train_source2.tsv,US,us,3016817,59.92
+train,train_source2.tsv,India,india,2017799,40.08
+train,train_source3.tsv,US,us,3170056,59.98
+train,train_source3.tsv,India,india,2115547,40.02
+test,test_source1.tsv,India,india,809986,46.75
+test,test_source1.tsv,US,us,663106,38.27
+test,test_source1.tsv,France,france,259452,14.98
+test,test_source2.tsv,India,india,2312565,47.32
+test,test_source2.tsv,US,us,1871330,38.29
+test,test_source2.tsv,France,france,703378,14.39
+test,test_source3.tsv,India,india,2405000,47.32
+test,test_source3.tsv,US,us,1945701,38.28
+test,test_source3.tsv,France,france,731615,14.4

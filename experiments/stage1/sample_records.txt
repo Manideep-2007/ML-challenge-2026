@@ -1,0 +1,300 @@
+
+====================================================================================================
+train_source1.tsv — first 20 rows
+====================================================================================================
+   entity_id                            business_name                                                                                                          business_address country
+S1-925783039                      Orelee's Barbershop                                                                                    1795 Westchester Drive, High Point, NC      US
+S1-773889195                              Prime Money                                                                                           17560 Ellis Road, Tahlequah, OK      US
+S1-377745466                            B+ Retail Inc                                                                                       1712 Montebello Avenue, Phoenix, AZ      US
+S1-133037285                            Christ Chapel                                                                         2100 Cameron Drive, Unit APARTMENT G, Dundalk, MD      US
+S1-755362802                  Prabhav Business Center                                                                      797, Lake Town Block A, Kolkata, Howrah, West Bengal   India
+S1-851869949               Custom Wealth Services LLC                                                                                         OH, Columbus, 5559 Orville Avenue      US
+S1-785847572 Consulting Nyasa Nursing Private Limited 2505, Tower 1, Oakwood, Runwal Greens, Mulund Goreagon Link Road, Near Fortis Hospital, Bhandup West, Mumbai, Maharashtra   India
+ S1-27541239                        Nexus Anchor Rain                                                                              1111 Church Street, Unit 2007, Nashville, TN      US
+S1-629417405                        Moore Bitwise Inc                                                                                     337 Oakland Avenue, Michigan City, IN      US
+ S1-22305073               Dermatology Green Medicine                                                               294 Meadowcreek Drive, Unit Unit 2, Village Of Pewaukee, WI      US
+S1-504790211                       Crystal Lending PC                                                                                   11643 Prosperity Road, South Jordan, UT      US
+S1-564729135               Dream Construction Limited    H.No.16-11-23/37/A, 2Nd Floor, Flat No.207, Sagar Hotel Building, Opp.Rta Office, Mo, Osarambagh, Hyderabad, Telangana   India
+S1-236312382                      Kelly Advisory, Inc                                                                                                301 1st Street, Chokio, MN      US
+S1-865131206                                   Helios                                                                                        66 Edgewood Street, Bridgeport, CT      US
+S1-626914593                   Unified Choice Dynamix                                                              Unit BUILDING 3030, MD, 2701 Eastern Boulevard, Middle River      US
+S1-765734254               Health Fellowship Partners                                                                              601 Oleander Circle, Virginia Beach City, VA      US
+ S1-82053739         Smart Healthcare Private Limited                                                  303, 3Rd Floor Sakar 5 B/H Natraj Cinema Ashram Road, Ahmedabad, Gujarat   India
+S1-309349399                   Callicoat & Dailey Inc                                                                                        Charlotte, NC, 833 Reliance Street      US
+S1-221443075                            Iris Advisors                                      House No-777 Raghubir Bhawanmadan Pur Khadar Sarita Vihar, Delhi, South Delhi, Delhi   India
+S1-341506266        Secunderabad Park Private Limited     Secunderabad, Hyderabad, Plot No.53, Flat No.402, Sr Estate-I Rainbow Colony, Ammuguda, Sainikpuri, Telangana, # 53/1   India
+
+====================================================================================================
+train_source1.tsv — 10 random rows, country=India
+====================================================================================================
+   entity_id                          business_name                                                                                            business_address country
+ S1-84670243                 Ram Technology Pvt Ltd Flat No. F 203, Amish Park E & F Chs Ltd, Near Don School, Mira Village, Mira Road East, Thane, Maharashtra   India
+S1-195138449                 Aditiya Promoters Corp                                               4 Lower Rowdon Street10 Floor, Kolkata, Calcutta, West Bengal   India
+S1-739649867   Ghaziabad Elastomers Private Limited                                                            3A-80, Rachna Vaishali, Ghaziabad, Uttar Pradesh   India
+S1-931113258 Secunderabad Engineers Private Limited       Plot No.39 & 40, Chittareddy Complex, Chittareddy Colony, Tadbund, Secunderabad, Hyderabad, Telangana   India
+S1-293497322           Urban South Business Limited                   Pune, Maharashtra, Sr No 137/1, 1St Floor, Block No 51/2, Dnyanesh Society, Warje Malwadi   India
+S1-245007383                  Sita Products Pvt Ltd                                               Ashif Akhatar S/O Zamil Akhtar, Line Bazar, Kishanganj, Bihar   India
+S1-709196318  Services Cpm Eduserve Private Limited                                           C/O Kuldeep Sharma, Ram Nagar Etah Road, Firozabad, Uttar Pradesh   India
+S1-259150006                Creative Skills (India)                              E/501 The Vilas Sector 25, Dlf City Phase 2 Gurugram, Dlf Qe, Gurgaon, Haryana   India
+S1-148824612           UTA Services Private Limited            Shop No.9, Ground Floor, Bhavani Nagar Co-Op. H.S.Soc.Ltd., Matawadi, Surat City, Surat, Gujarat   India
+S1-531861809                     First Tech Pvt Ltd                  C/O Madan Patidar, Survey, No.431/1/1/1 Nahargarh Rd, Malhargarh, Mandsaur, Madhya Pradesh   India
+
+====================================================================================================
+train_source1.tsv — 10 random rows, country=US
+====================================================================================================
+   entity_id                    business_name                          business_address country
+S1-644746405   Pediatric Dental Liberty Group     32660 Mount Olive Road, Salisbury, MD      US
+S1-689718728                  Harrell Adr Inc    40 The Ledges, Unit 4C, Youngstown, OH      US
+ S1-39105767 Catina Forman Highland Horse Inc          2227 Chicago Avenue, Savanna, IL      US
+S1-528092663           Ace Vanguard Gold Inc.          715 Sakowitz Street, Houston, TX      US
+ S1-41062807                    Khan Grid Inc      9600 Wightman Road, Gaithersburg, MD      US
+ S1-60875455              Salguero Copper Inc 5 Lincoln Drive, Unit APT 2, Lewiston, ME      US
+ S1-27927685                 Magid Pediatrics   Russellville, 108 Cedar Shore Drive, AR      US
+S1-126841061        Taylor Coastal Viking LLC            KY, Ashland, 2330 Pollard Road      US
+ S1-56543033               Scheer Arch L.L.C.                  180 4100 Road, Soper, OK      US
+S1-687943035         Dion Interstate Tactical   12003 Winding Creek Way, Germantown, MD      US
+
+====================================================================================================
+train_source2.tsv — first 20 rows
+====================================================================================================
+   entity_id                                                            business_name                                                                                          business_address country
+S2-166376419                                          राम मार्केटिंग प्राइवेट लिमिटेड                                                              KH NO. -570/13, NEW DELHI, WEST DELHI, Delhi   India
+S2-764573417                                             -- Holloway Peak Inc Seafood                                                                                 105 ELM ST, MORGANTON, NC      US
+S2-639257739                                                 आदित्य प्रॉपर्टीज एलएलपी                                                          G-3/571, GULMOHAR COLONY, BHOPAL, Madhya Pradesh   India
+S2-163963287                                                               Summit Inc                                                                     GREENSBORO, NC, 19 1/2 STARDUST TRAIL      US
+ S2-49942811                                             Delta Tetlecommunication Inc                                                                           914 PIERPONT AVE, CLEVELAND, OH      US
+S2-138046867                                                           Lee and Lawson                                                                   1702 Pine Avenue, CITY OF MENOMONIE, WI      US
+S2-584977605 SHIVSHAKTI VIDYALAYA VIDYALAYA OVERSEAS CORPORATION | www.shivshakti.com                                                                H.NO 204 C ROAD HOSHIARPUR, PUNJAB, Punjab   India
+S2-277444929                                               Shree Infracon Private Ltd                                63/2275/7, ALHIND TOWER, FIRST FLOOR, JAFFERKHAN COLONY, KOZHIKODE, Kerala   India
+S2-721031885                                             Chavira Platinum Chimera LLC                                                                        282 SAXONY DRIVE, FTT MITCHELL, KY      US
+S2-508602797                                 FOUNDATION EXCEL AGENCY PRIVATE  LIMITED                                                  HN 753 E-1, BHARAT NAGAR, 104/1/1 ERANDWANE, Maharashtra   India
+ S2-69394310                                                         heassociates.com                                                                          599 PEASE HILL ROAD, HORICON, NY      US
+S2-615967906                                         सन कंस्ट्रक्शंस प्राइवेट लिमिटेड 43 SUKH SAMRUDDHI, Maharashtra, PUNE REGION, PUNE, BUNGALOW NO. 5, S. NO. 5, VIDISHA SOCIETY, KARVE NAGAR   India
+S2-684635925                               Global Developers Medicals Private Limited             H.NO 008 GOVIND BUILDING OPP.HOTEL VRINDHAVAN AARAY ROAD GOREGAON (EAST), MUMBAI, Maharashtra   India
+S2-868087865                                             ASSET BUILDING COALITION LLC                                                                        8219 17RD STREET, LAKE STEVENS, WA      US
+S2-795141272                                        Olszewski Holding Company LLC LLC                                                                         218 SHOAL CREEK, WILLIAMSBURG, VA      US
+S2-414418413                                                         CANDY'S-SERVICES                                                                       313 FOXBOROUGH DRIVE, BRUNSWICK, OH      US
+S2-566688803                                                  रियल मॉडर्न फूड लिमिटेड                               SHP NO. G-4, PLOT NO. 19, SECTOR 42, NERUL, THANE, NAVI MUMBAI, Maharashtra   India
+S2-634015823                                             Crestline Crestline Clean LP                                                                              HIGHWAY 49, ASHLAND CITY, TN      US
+S2-378707035                                                                     Nion                                                                     7100 BRIGHAM ROAD, HENRICO COUNTY, VA      US
+S2-953098128                                             Keystone Odyssey Odyssey LLC                                                                     1418 MEADOWBROOK DR, JOHNSON CITY, TN      US
+
+====================================================================================================
+train_source2.tsv — 10 random rows, country=India
+====================================================================================================
+   entity_id                                  business_name                                                                                                   business_address country
+S2-454407610          ईस्टर्न इन्वेस्टमेंट प्राइवेट लिमिटेड                                  PLOT ##43 FLAT NO-B-1105, 38PARK, SR NO-38/2/3 PUNE, PUNE CITY, PUNE, Maharashtra   India
+S2-441488475                  Thrissur Limited Private Tech Keralam, #26 WING-A, GROUND FLOOR, DEVADARAM VILLA BUILDING INFOPARK THRISSUR, NALUKETTU ROAD, KORAT, TY, THRISSUR   India
+S2-174943083                   Baba Quick Coimbatore [Dist]                                     C-116A TEKIC TEA NAGARSIDCO MUDALIPALAYAM TIRUPUR, COIMBATORE DIST, Tamil Nadu   India
+S2-522195724                  BRIGHT PRIVATE LIMITED CENTER                                           FLATÂB/D/506 THE ISLAND OM DEVELOPERS SNO.169 WAKAD, PUNE, Maharashtra   India
+S2-148225856                            AGRO DAN AUTOMATION                                                             D NO- 7/425-1 GODUGU PETA, MACHILIPATNAM, ఆంధ్రప్రదేశ్   India
+S2-958268060          Creative પ્રોજેક્ટ્સ પ્રાઇવેટ લિમિટેડ                                                      NO 81 GODHRA ROAD, DIST-DOHAD, TALUKA - DOHAD, DOHAD, Gujarat   India
+S2-505414883 ସ୍ମାର୍ଟ୍ ବିଜନେସ୍ ସଲ୍ୟୁସନ୍ସ୍ ପ୍ରାଇଭେଟ୍ ଲିମିଟେଡ୍                                                                                  #413, KHORDA, BHUBANESWAR, Orissa   India
+S2-383317782           Ananya Technologies Priactse Limited                                                            Maharashtra, 2180/14 AT PANDHARE CHOUK, MADLAPUR, UDGIR   India
+S2-404871285                           Mr Dharti  Prhrdcuer                                        NO:##1, PPPIREDDY GARI PALLI HASANAPURAM VILLAGE, RAMAPURAM, Andhra Pradesh   India
+S2-852765973                सदर्न ट्रेडिंग प्राइवेट लिमिटेड                                                                                    DOOR NO 100, PANCHKULA, Haryana   India
+
+====================================================================================================
+train_source2.tsv — 10 random rows, country=US
+====================================================================================================
+   entity_id                                          business_name                            business_address country
+S2-744400191                                Optimal Mndgal Dynamics       454 WALTON BOULEVARD, BENTONVILLE, AR      US
+S2-591196144 LOUISVILLE URGENT CARE ALL HEALTH | www.louisville.com  409 EAST MUHAMMAD ALI BLVD, LOUISVILLE, KY      US
+S2-276454667                                      Glass and Buckman      215 FAIRMONT AVE, HARRIAN TOWNSHIP, TN      US
+S2-687069736                   Center Horizon Neuberger XR Westgate     8705  PENDLETON AVENUE, SAINT LOUIS, MO      US
+ S2-98171065                                      BRIGHT PIZZA! INC COLUMBUS, #6096 NICHOLAS GLEN, OH, PMB 7531      US
+S2-893246324                                       Supreme Services                 IL, 1005 VILLAGE CT, DARIEN      US
+ S2-91590235                                    Helge Sosa Xrp Ltd.       3158 GRACEFIELD RD, SILVER SPRING, MD      US
+ S2-61220223                                          oudefense.com    11 1/2 SEVENTH STREET, MCMECHEN CITY, WV      US
+S2-598618780                           Cardiology Fresh Group  P.C.   WI, VILLAGE OF WINDSOR, 4235. Cortland Ct      US
+S2-314158336                        HALL, RIVERSIDE & RUSSELL SMITH    59 CENTRAL AVENUE, PMB 6202, NORWICH, CT      US
+
+====================================================================================================
+train_source3.tsv — first 20 rows
+====================================================================================================
+   entity_id                               business_name                                                                               business_address country
+S3-202863386                          wilfordhancock.com                                                                    Mack Rd, Haltom City, Texas      US
+S3-859268022 International South Consultants Private Ltd                                                                                            NaN   India
+ S3-22467283                 LLC Moncada Léarning Center                                                                5780 Fawn Ct, Fort Worth, Texas      US
+S3-671162755                              Moyna's Coffee                                                   1 Ivanhoe Ave, PO Box 6009, Cincinnati, Ohio      US
+S3-960981775                Pvt. EFS Print Ventures Ltd.    Door No 183, 41St Cross, 22Nd Main 9Th Block Jayanagar, Bengaluru Urban, Bangalore, ಕರ್ನಾಟಕ   India
+S3-578159284              LLC Hernandez Colonial Redwood                                      2260- Housecreek Trail, Unit 407, Raleigh, North Carolina      US
+S3-121412624               Classic Equity Partners Group                                           6885 Catalpa Bluff Ln, PO Box 5799, Dickinson, Texas      US
+S3-249416830              Ectolumdrex dba X+ Madison Inc                                                           S03575 Cty Tk M, Town Of Buffalo, WI      US
+S3-107644605                     Animal Hanisch Hospirlg                                              ##8 Willow Oak Lane, Fl. 0, Saint Louis, Missouri      US
+S3-160217003                               Gomez Optimal                                                              343 Hempstead 161, Hope, Arkansas      US
+S3-504183980            The Rapid  Learning Alliance LLC                                                    46 White Rock Dr, Hurricanne, West Virginia      US
+ S3-53737228                  Indian Care Public Limited    Raebareli, Rae Bareli, Raibareilly, UP, No #51 C/o Shiv Kumar Maurya S/o Ram Ausan Bastepur   India
+ S3-16693061                                       Béque                                                           189 Connmre Dr, Nashville, Tennessee      US
+S3-331103166                           #centraleducation                                                          1113 Ash Street, Carlsbad, New Mexico      US
+ S3-45067784         அரிஹந்த் Foundation Private Limited                         Saranampatti Roadvellakinar Post Coimbatore, Tamilnadu, Coimbatore, TN   India
+S3-118652570                         Wildlife Guild  LLC                                                        18900 Harl Weiller Road, Caldwell, Ohio      US
+ S3-90100170                          Cinder Charlton-PC                                                         0200 Washington Street, ALVO, Nebraska      US
+S3-476778426                              ZRO Trinity Co                                                             0315 Laramie St, Gillette, Wyoming      US
+S3-128062172           Bajaj Foundation  Private Limited Rajendra Nagar, Andhra Pradesh, 221, 2Nd Floor, 7-90/5, Hn 86 Gandipet Main Rd, K.v.rangareddy   India
+S3-171901473                           Estell's Creative                                            15380 Fillmore Street, Unit 1006, Goodyear, Arizona      US
+
+====================================================================================================
+train_source3.tsv — 10 random rows, country=India
+====================================================================================================
+   entity_id                                 business_name                                                                                          business_address country
+S3-764800725                                      Orbipyra                              D No 42 Jayalalitha Nagar, Ranganathapuram, Tiruppur, Coimbatore, Tamil Nadu   India
+S3-454448458                                      Lyrapyra C/O Gigantic Trading Co Pvt Ltd B, 1 Hem Colony S V Road Vile Parle (W), Mumbai, Mumbai City, Maharashtra   India
+S3-698289264        M/s ... Vindya Léasing Private Limited                                                                              Floor, Mumbai (SUBURBAN), MH   India
+S3-106377778                                       Wexnyla                        23, Kailash Vihar, Opposite Income Tax Office City Centre, Gwalior, Madhya Pradesh   India
+S3-150935202                monika traders private limited                               C S 01432 C Shop No B-6 Om Plaza, Kondalane Laxmipuri, Kolhapur, Karvir, MH   India
+S3-329149685               கிரியேட்டிவ் ஃபைனான்ஸ் லிமிடெட்                        No.100-a, 7Th Cross Street, Kasim Nagar, Ii Street, Palayankottai, Tirunelveli, TN   India
+S3-711428168            યુનિક ટેક્નોલોજીસ પ્રાઇવેટ લિમિટેડ                           No 233 609, Sakar-5, B/h Natraj Cinema, Ashram Road, Ellisbridge, Ahmedabad, GJ   India
+S3-849826009                                  Time (India)                                                              0038 Kasturi Rangan Road, Chennai, தமிழ்நாடு   India
+S3-972665079                         5hree Heights Private                                                02, Hyde Park, Sakivihar Road, Mumbai, Andheri (East)., MH   India
+S3-168155407 International Ideal Hospitality (Corporation)                                                       Door No 06. S.r. Complex Dh, Road, Pen, Raigarh, MH   India
+
+====================================================================================================
+train_source3.tsv — 10 random rows, country=US
+====================================================================================================
+   entity_id               business_name                                             business_address country
+S3-240080319                     Ssg-lnc                             1413 Havard Road, Huffman, Texas      US
+S3-752551129  Heritage Pacific Sachem LP                         Overcheck Lane, Brentwood, Tennessee      US
+S3-231335910            drayon templeton      29-31 Main St, # 94, WEST Brookfield CDP, Massachusetts      US
+S3-665835725                6-Point Inc. 0755 Sunnyside Dr, Fl. 1, Scottsdale Fountain Hills, Arizona      US
+S3-454392887     Plumbers Local-835 Inc.                   Streamwood, 78A Brookstone Drive, Illinois      US
+S3-941112945         Peavy-National  LLC                           2537-2541 Village Dr, Toledo, Ohio      US
+S3-105889526   Wells Immersion  Lakeside                3332 1/2 Rueckert Avenue, Baltimore, Maryland      US
+S3-246009723 Portia's Bay Enterprises LP                        Washington, 10011 3st Avenue, Everett      US
+S3-139830675       Baptist  Chiropractic                            46- Norman Ave, Buffalo, New York      US
+S3-859114894     Bobbye Korando, O.D. Co                     719 Kentucky Street, Vallejo, California      US
+
+====================================================================================================
+test_source1.tsv — 10 random rows, country=France
+====================================================================================================
+   entity_id                business_name                                                         business_address country
+ S1-41726612 Mediation Visages Fetes EURL                     Dunkerque, 3 Rue de la Bienfaisance, Hauts-de-France  France
+S1-845965189                   Lille Club                              15 BIS Rue d'Arcole, Lille, Hauts-de-France  France
+S1-881396111             Amicale du Usine          41 Place de la Cinquième République, Pessac, Nouvelle-Aquitaine  France
+S1-657417418               Pharmacie Dame                            26 Rue Mercière, Bordeaux, Nouvelle-Aquitaine  France
+S1-872609724            Nantes Sport SARL                               Pays de la Loire, 29 Rue du Fezzan, Nantes  France
+S1-692990298         Établissements Faire 7 Avenue de la Reousse Dune l'Herbe, Lège-Cap-Ferret, Nouvelle-Aquitaine  France
+S1-357802158        Foire Maternelle EURL                          83 Rue de Laseppe, Bordeaux, Nouvelle-Aquitaine  France
+S1-150454433               Maison Formule                                 22 Rue de Mons, Roubaix, Hauts-de-France  France
+S1-867280894     Dansez Construction EURL                         4 Allée de Cherbourg, Dunkerque, Hauts-de-France  France
+S1-553377212    Art (France) College SARL               Bordeaux, Nouvelle-Aquitaine, 17 Rue des Trois Chandeliers  France
+
+====================================================================================================
+test_source1.tsv — 10 random rows, country=India
+====================================================================================================
+   entity_id                    business_name                                                                                               business_address country
+S1-902157746     PGS Santoshi Private Limited         At /Po - Anantapur, Anantapur Gada, Phulnakhara, C/O - Gajanana Builders, Bhubaneswar, Khordha, Orissa   India
+S1-152879666 Green Foundation Private Limited                                     No.3/845 - C1, Murugan Koil Street, Paramakudi, Ramanathapuram, Tamil Nadu   India
+S1-927967754    Ktp Solutions Private Limited                    H/O Shri Rahul Mishra Ground Floor, H/No-20 Bhoothnath Road, Incometax Colony, Patna, Bihar   India
+S1-231435628         Sahi Leaf (India) Center 106, Technopolis Knowledge Park Mahakali Caves Road, Chakala, Andheri Ea, St, Mumbai, Mumbai City, Maharashtra   India
+S1-271709673  Sree Consulting Private Limited                                           C/O-Bhaktaram Putel, Keogan, Kalahandi, Golamunda, Kalahandi, Orissa   India
+S1-692695255      Star Global Private Limited                    S - 185, Gf, South Avenue (Omaxe), Uppal'S Southend Sector 49, Sohna Road, Gurgaon, Haryana   India
+S1-862302335      Thane Media Private Limited                   Flat No. A-4 604, Shree Gurudev Palace Chsl Medtiya Nagar, Mira Road (E), Thane, Maharashtra   India
+S1-605225582               Aeren Software Ltd                  Parganas South, Kolkata, 43/1/D/F/12, West Bengal, D.P.J.M. Road Suchitra Market, Budge Budge   India
+S1-887635314             Real Apex Industries                                                               Surat, Gujarat, Office 130, Surat, Raj Arcad Pal   India
+S1-449618046             Jain Systems Pvt Ltd                            Plot No. F- 71, Shop No. 4, G/F Dilshad Colony, Shahadara, Delhi, East Delhi, Delhi   India
+
+====================================================================================================
+test_source1.tsv — 10 random rows, country=US
+====================================================================================================
+   entity_id                     business_name                                business_address country
+S1-979423131                     GBH Aerospace 3003 Van Ness Street, Unit S208, Washington, DC      US
+S1-975067754                            Zenith                Baton Rouge, LA, 8450 Cody Drive      US
+S1-564512945         Regional Enterprises, Inc                    227 Wright Avenue, Houma, LA      US
+S1-860034914                     Valley Runway         5110 32nd Street, Unit 301, Phoenix, AZ      US
+S1-591873972         Crystal Rocky Mission Inc                     3609 99th Street, Tulsa, OK      US
+S1-638972095            Interstate Averin, Inc                2119 Maypole Avenue, Chicago, IL      US
+S1-654164428                    HY Capital Evo         5102 Silver Bullet Way, Fort Mohave, AZ      US
+S1-693121791    Tucson Regional Quality Church            7031 Valley Stream Drive, Tucson, AZ      US
+S1-275495458                Ridge Committee II                 157 Cr 1521, Eureka Springs, AR      US
+S1-898005529 Anderson, Hoover & Thomas Usa Inc               9018 Gramercy Place, Lakewood, WA      US
+
+====================================================================================================
+test_source2.tsv — 10 random rows, country=France
+====================================================================================================
+   entity_id                    business_name                                                           business_address country
+ S2-19087216                      JX Sportive                                           30 RUE DE MENIN, TOURCOING, Nord  France
+S2-824918948       ASSOCIATION DE VALOIS EURL                                            N° 14 R. DE BOULMGNE, TOURCOING  France
+S2-533464750 École primaire International SCI                                           NO 12 RUE LOUIS BRALLE, BORDEAUX  France
+S2-677480728                 Pontet Ecole SAS                     57 RUE DE LA VILLE EN PIERRE, NANTES, Pays de la Loire  France
+ S2-11241777          Sociale Chu Comite SARL                   Hauts-de-France, NO. 14 RUE MONSEIGNEUR PIEDFORT, CALAIS  France
+S2-751420807  Trois & Frèrês Développement SA                 56 - RTE DES QUATRE VENTS, SAINT-NAZAIRE, Loire-Atlantique  France
+S2-854158318         3eme Culturelle (Frànce)                        1 BD. DU MASSACRE, SAINT-HERBLAIN, Loire-Atlantique  France
+S2-943119084                      MQG Amicale                        005 PLACE DES BASQUES, BORDEAUX, Nouvelle-Aquitaine  France
+S2-484686989                   Spv Jeunes SCI               Loire-Atlantique, LA BAULE-ESCOUBLAC, 82 BOULEVARD DE L'OÉAN  France
+S2-104097631    Dentaire Societe (France) SCI 91 R ROBERT CAUMONT - IMMEUBLE P, LES BUREAUX DU LAC II, BORDEAUX, Gironde  France
+
+====================================================================================================
+test_source2.tsv — 10 random rows, country=India
+====================================================================================================
+   entity_id                              business_name                                                                                          business_address country
+S2-169600196          DREAMZ PLANTS ENTERPRISES PRIVATE                  #1242, GALI NO. 16 SANJAY ENCLAVE, NEAR SHIV CHOWK BABA MAN, DI, NIT, FARIDABAD, Haryana   India
+S2-437695781                          OUQ Aleo Group Co                   NO 254. 96-B, R. K. PURAM, SHYOPUR SANGANER, SECTOR-11, PRATAP NAGAR, JAIPUR, Rajasthan   India
+S2-431113584 Private Spark Texpro (India) Group Limited                                                              FLAT NO. 9 SEJAL GALAXY, NASHIK, Maharashtra   India
+S2-219375944         जैन ईस्टर्न फूड्स प्राइवेट लिमिटेड                BLOCK E-975 RAN-355, IIND FLOOR, ANUVRAT TOWER WAZIRPUR, COMMERCIAL COMPLEX, DELHI, दिल्ली   India
+S2-591460665           होटल मार्केटिंग प्राइवेट लिमिटेड                                                                 PLOT 642 FLAT NO - 705, PUNE, Maharashtra   India
+S2-452589080               School International Eastern                                           VASTRAPUR UNIVERSITOGROUND 132 FT RING ROAD, AHMEDABAD, Gujarat   India
+S2-214590805                     स्काई कंसल्टिंग एलएलपी                                                 SA-15/38 D-5-P, MAVAEEYA SARNATH, VARANASI, Uttar Pradesh   India
+S2-139632467                    SUBHDATANURSINGHOME.COM                              DOOR NO 266 G - 104, ASHOKA PLAZA VADGAONSHERI, PUNE NAGAR ROAD, Maharashtra   India
+S2-799164635                                   Veravera                                  #138, 29TH MAIN ROAD DOLLARS COLONY, BTM 2ND STAGE, BANGALORE, Karnataka   India
+ S2-51790258                       Kolkata Jobs Limited #90/7 C/O BASUDEB NANDY, NAIPUKUR SOUTH SIDE OF MURI FACTORY, P.O.RAJARHAT, KOLKATA, KOLKATA, West Bengal   India
+
+====================================================================================================
+test_source2.tsv — 10 random rows, country=US
+====================================================================================================
+   entity_id                                  business_name                           business_address country
+S2-961451126                          purnell endocrinology            536 THIRD STREET, OTTOVILLE, OH      US
+S2-559232166                            Delucia,  Green and          001520 WENONAH AVE, PERISBURG, VA      US
+ S2-68191300 Maure Hardin Vanguard Octave (L.L.C.) (L.L.C.) 1260 THOMPSON CREEK ROAD, JACKSONVILLE, OR      US
+S2-473851115                     OLSEN, YU AND THELEN GROUP         31 1/2 KILLDEER LANE, FAIRPORT, NY      US
+S2-794224231                  FUQ  Creative Origin Partners                   MAPLE DR, WASHINGTON, DC      US
+S2-953419071                    Williams, Pc Ph.D., Martha,                312 232ND STREET, BRIER, WA      US
+S2-552741115       *** Creative Nutrition Laboratories [LP] 53 FISH AND FIDDLE ROAD, MOUNTAIN HOME, AR      US
+S2-451939126                    LLC Southern Currencyshares             51 KONDAZIAN ST, WATERTOWN, MA      US
+S2-133674084                                      Binfn LLC  W617 SPENCER ROAD, PMB 4872, APPLETON, WI      US
+S2-710158106                     ceperoscornerstoneengg.com                    GROVE AVE, RICHMOND, VA      US
+
+====================================================================================================
+test_source3.tsv — 10 random rows, country=France
+====================================================================================================
+   entity_id                     business_name                                 business_address country
+S3-366461218                 Tourcoing Loisirs                     N°94 R Des Champs, Tourcoing  France
+S3-911557245                 Vigan SASU Comite      8 Rue André Chenier, Lille, Hauts-de-France  France
+S3-295250807         Bureau SAS Fetes (France)                   23 Bis Rue De Caulet, Bordeaux  France
+S3-889785051                @Alissasmaternelle              115 R. Dupuy De Lôme, Roubaix, Nord  France
+S3-717904579               Team Ecole E.U.R.L. 19 R La Clairière Des Ontiens, Mérignac, Gironde  France
+S3-584659989           entente comite (france)                     361 R. Jules Guesde, Roubaix  France
+S3-521711221                 BLP Immôbilier SA                   9 Rue Paul Painlevé, Tourcoing  France
+ S3-89844898 Balade Primaire (France) E.U.R.L.                      R. De Gnad, Tourcoing, Nord  France
+S3-189802196                     EURL IGG Auto                         15 R Thévenet, Dunkerque  France
+S3-543623090                  Cultures Amicale  94 Rue Notre Dame, Bordeaux, Nouvelle-Aquitaine  France
+
+====================================================================================================
+test_source3.tsv — 10 random rows, country=India
+====================================================================================================
+   entity_id                                 business_name                                                                                                     business_address country
+S3-431583616                  Supreme Consultants  Limited                                                                                    #393 Pragati Nagar, Dungarpur, RJ   India
+ S3-41577237                      U P Services Private Ltd                                                                     Meerut, U P, UP, Manohar Marketanaj Mandi Meerut   India
+S3-444700036                  गोल्डन प्रोजेक्ट्स प्रा. लि.                                                            Gorakhpur Sadar, UP, Gorakhpur, 27C Hp Dubey Marg Infront   India
+S3-279907876                          Ss Lrih Care Limited                                                                             Flat Number 100, Ghaziabad, उत्तर प्रदेश   India
+S3-418063684                          Vikas Nirman Limited                Door No 1-8/57, First Floor, Above Tafe Tractor Showroom, Chennai Bypass Road, Rajampet, Cuddapah, AP   India
+ S3-66814404           New Délhi Solutions Private Limited                                                                         1 Ground Floor, New Delhi, Central Delhi, DL   India
+S3-341046022                           Kalamboli Civil LLP                                                                                 Flat No. 515, Kalamboli, Raigarh, MH   India
+S3-388435699                   Smt Spl Seva-Saiti Holdings                                           Fl No A02 Bld-a/7, Sn-135/, 1A, Malwadi Warje, Pune City, Pune, महाराष्ट्र   India
+S3-904624780 >> So1utions Ruparel Pharmaceuticals  Limited                               Unit No. 154.- Ist Floor, Dda Market No.1, Chitranjan Park, New Delhi, South Delhi, DL   India
+S3-965142143                             alphaservices.com Mani Casadona, Unit No 11E3, Eleventh Floor, Plot No Iif/4, Action Area-iif, New Town, North 24 Parganas, পশ্চিমবঙ্গ   India
+
+====================================================================================================
+test_source3.tsv — 10 random rows, country=US
+====================================================================================================
+   entity_id                   business_name                                  business_address country
+S3-874571604           Brightialdominion.Com                Cooksey Drive, Mount Desert, Maine      US
+S3-477035428    >> SANCHEZ CRYSTAL ROYCE INC          951 Boswell Drive, NULL, Oxford, Alabama      US
+S3-550068159          Kat Castro  Miluna LLC 2938 Thirlestane Drive, N/A, Apex, North Carolina      US
+S3-181727051 Keystone Wholesale Networks  Co            6932 Crosby Ct, Minnetrista, Minnesota      US
+S3-249601736                 Troyer [Vision]                  5198. Malmedy Rd, Houston, Texas      US
+S3-690757051            Lyrio Álto Summit Co             1120 Englewood Avenue, Lubbock, Texas      US
+S3-186381450           durkincommunities.com        22 Baskins Creek Rd, Gatlinburg, Tennessee      US
+S3-296671121              Zike Analytics Llc            161 Willow Creek Road, Casper, Wyoming      US
+S3-569185277   Kelly  Bsp | www.kellybsp.com             Whitestone, New York, Riverside Drive      US
+S3-667605726                    Lantern  Ltd      22105 Mountain Highway, Spanaway, Washington      US

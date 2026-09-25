@@ -1,0 +1,7 @@
+dataset,rows,duplicate_entity_ids,duplicate_business_names,duplicate_business_names_case_insensitive,duplicate_business_addresses,duplicate_name_address_pairs,entity_id_unique,business_name_unique,business_address_unique,country_unique
+train_source1,2206821,0,667592,668017,76215,0,2206821,1539229,2130606,2
+train_source2,5034616,0,632606,747144,528388,25688,5034616,4402008,4337261,2
+train_source3,5285603,0,633982,706507,476923,18641,5285603,4651608,4632764,2
+test_source1,1732544,0,493677,494300,55061,0,1732544,1238867,1677483,3
+test_source2,4887273,0,576187,680150,533082,22468,4887273,4311040,4224783,3
+test_source3,5082316,0,560329,636166,489783,16110,5082316,4521928,4456435,3

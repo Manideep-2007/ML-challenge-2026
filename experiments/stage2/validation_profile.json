@@ -1,0 +1,70 @@
+{
+  "total_entities": 2206821,
+  "train_entities": 1765456,
+  "validation_entities": 441365,
+  "validation_fraction": 0.2,
+  "random_state": 42,
+  "split_strategy": "Source 1 entity split stratified by country x ground-truth match count (capped at 5). Source 2 and Source 3 are NOT split: both remain the full shared reference universe.",
+  "train_split_definition": "train = all train_ground_truth.tsv rows whose source1_entity_id is not in validation_ground_truth.tsv",
+  "validation_ids_sha256": "cfb46cafb3c4140c7e08e262ead66a99eae17b318555cb5ffb4191d3eed375e3",
+  "train": {
+    "entities": 1765456,
+    "singletons": 98598,
+    "singleton_pct": 5.585,
+    "single_match": 95325,
+    "multi_match": 1571533,
+    "positive_links": 6110117,
+    "s2_links": 2954420,
+    "s3_links": 3155697,
+    "average_matches": 3.4609,
+    "maximum_matches": 11,
+    "country_distribution": {
+      "India": 706549,
+      "US": 1058907
+    },
+    "match_count_distribution": {
+      "0": 98598,
+      "1": 95325,
+      "2": 300169,
+      "3": 424673,
+      "4": 387292,
+      "5": 257762,
+      "6": 131880,
+      "7": 51149,
+      "8": 14824,
+      "9": 3325,
+      "10": 432,
+      "11": 27
+    }
+  },
+  "validation": {
+    "entities": 441365,
+    "singletons": 24649,
+    "singleton_pct": 5.585,
+    "single_match": 23832,
+    "multi_match": 392884,
+    "positive_links": 1528248,
+    "s2_links": 739199,
+    "s3_links": 789049,
+    "average_matches": 3.4625,
+    "maximum_matches": 11,
+    "country_distribution": {
+      "India": 176639,
+      "US": 264726
+    },
+    "match_count_distribution": {
+      "0": 24649,
+      "1": 23832,
+      "2": 75043,
+      "3": 106168,
+      "4": 96823,
+      "5": 64195,
+      "6": 32988,
+      "7": 12819,
+      "8": 3856,
+      "9": 880,
+      "10": 102,
+      "11": 10
+    }
+  }
+}

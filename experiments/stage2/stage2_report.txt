@@ -1,0 +1,59 @@
+STAGE 2 VALIDATION REPORT
+======================================================================
+
+Total Source 1 entities:   2,206,821
+Training entities:         1,765,456
+Validation entities:       441,365
+Validation fraction:       0.2
+Random state:              42
+Validation IDs sha256:     cfb46cafb3c4140c7e08e262ead66a99eae17b318555cb5ffb4191d3eed375e3
+Split strategy:            Source 1 entity split stratified by country x ground-truth match count (capped at 5). Source 2 and Source 3 are NOT split: both remain the full shared reference universe.
+
+Validation:
+  Empty GT (singletons):   24,649 (5.585%)
+  Single-match GT:         23,832
+  Multi-match GT:          392,884
+  Positive links:          1,528,248
+  S2 matches:              739,199
+  S3 matches:              789,049
+  Average matches/entity:  3.4625
+  Maximum matches/entity:  11
+  Countries:               {'India': 176639, 'US': 264726}
+
+Metric:
+  F-beta:     F = (1 + b^2) P R / (b^2 P + R)
+  Beta:       0.5
+  Averaging:  per Source 1 entity, macro-averaged over ALL entities
+  Empty GT + empty prediction = 1.0; IDs compared as sets
+
+Tests: 23/23 passed
+  PASS  perfect_match
+  PASS  missed_match
+  PASS  wrong_match
+  PASS  correct_plus_false_positive
+  PASS  correct_empty
+  PASS  false_positive_on_singleton
+  PASS  challenge_readme_example
+  PASS  one_of_four_found
+  PASS  duplicate_prediction_ids
+  PASS  order_invariant
+  PASS  macro_mixed_entities
+  PASS  missing_prediction_entity_is_empty
+  PASS  equal_weight_per_entity
+  PASS  sklearn_agreement_500_random_cases (max abs diff)
+  PASS  detects_duplicate_ids
+  PASS  detects_invalid_prefix
+  PASS  detects_missing_entity
+  PASS  detects_extra_entity
+  PASS  validation_file_matches_profile
+  PASS  oracle_scores_1
+  PASS  all_empty_equals_singleton_share
+  PASS  round_trip_entities_preserved
+  PASS  round_trip_score_identical
+
+Reference baselines (validation split, no model):
+  oracle (predict ground truth)            macro F0.5 1.000000  P 1.0000  R 1.0000  singletons 1.0000  matched 1.0000  by country {'India': 1.0, 'US': 1.0}
+  all empty (predict no matches)           macro F0.5 0.055847  P 0.0558  R 0.0558  singletons 1.0000  matched 0.0000  by country {'India': 0.055877, 'US': 0.055828}
+  one correct match per entity             macro F0.5 0.696329  P 1.0000  R 0.3769  singletons 1.0000  matched 0.6784  by country {'India': 0.696036, 'US': 0.696524}
+  half of the true matches (rounded up)    macro F0.5 0.878104  P 1.0000  R 0.6117  singletons 1.0000  matched 0.8709  by country {'India': 0.878073, 'US': 0.878124}
+  oracle + 1 false positive per entity     macro F0.5 0.751564  P 0.7167  R 0.9442  singletons 0.0000  matched 0.7960  by country {'India': 0.751707, 'US': 0.751469}

@@ -1,0 +1,114 @@
+{
+  "total_source1_entities": 2206821,
+  "entities_with_matches": 2083574,
+  "singleton_entities": 123247,
+  "singleton_pct": 5.58,
+  "total_positive_links": 7638365,
+  "average_matches_per_source1": 3.4612526344456573,
+  "average_matches_per_matched_source1": 3.66599170463828,
+  "maximum_matches_for_one_source1": 11,
+  "entities_with_maximum_matches_count": 37,
+  "entities_with_maximum_matches": [
+    "S1-765235386",
+    "S1-958050134",
+    "S1-611116729",
+    "S1-6278821",
+    "S1-788836955",
+    "S1-202947021",
+    "S1-806895726",
+    "S1-796723634",
+    "S1-630169933",
+    "S1-868855622",
+    "S1-377963262",
+    "S1-745776042",
+    "S1-716250610",
+    "S1-545341102",
+    "S1-202191494",
+    "S1-906807600",
+    "S1-98979687",
+    "S1-394740275",
+    "S1-41341245",
+    "S1-721513933"
+  ],
+  "source2_links": 3693619,
+  "source3_links": 3944746,
+  "matched_source1_with_both_s2_and_s3": 1776047,
+  "matched_source1_with_only_s2": 143029,
+  "matched_source1_with_only_s3": 164498,
+  "invalid_match_id_prefixes": [],
+  "invalid_match_id_prefixes_count": 0,
+  "ground_truth_entities_missing_from_source1": [],
+  "ground_truth_entities_missing_from_source1_count": 0,
+  "source1_entities_missing_from_ground_truth": [],
+  "source1_entities_missing_from_ground_truth_count": 0,
+  "duplicate_source1_rows_in_ground_truth": 0,
+  "duplicate_ids_within_a_match_list": 0,
+  "match_count_distribution": {
+    "0": 123247,
+    "1": 119157,
+    "2": 375212,
+    "3": 530841,
+    "4": 484115,
+    "5": 321957,
+    "6": 164868,
+    "7": 63968,
+    "8": 18680,
+    "9": 4205,
+    "10": 534,
+    "11": 37
+  },
+  "s2_match_count_distribution": {
+    "0": 287745,
+    "1": 789108,
+    "2": 652779,
+    "3": 333957,
+    "4": 119078,
+    "5": 24154
+  },
+  "s3_match_count_distribution": {
+    "0": 266276,
+    "1": 716417,
+    "2": 668375,
+    "3": 372443,
+    "4": 145116,
+    "5": 35378,
+    "6": 2816
+  },
+  "target_source_coverage": {
+    "S2-": {
+      "records_in_file": 5034616,
+      "distinct_ids_referenced_by_gt": 3693619,
+      "referenced_ids_missing_from_file": 0,
+      "records_never_matched": 1340997,
+      "pct_records_never_matched": 26.64,
+      "ids_linked_to_multiple_source1": 0
+    },
+    "S3-": {
+      "records_in_file": 5285603,
+      "distinct_ids_referenced_by_gt": 3944746,
+      "referenced_ids_missing_from_file": 0,
+      "records_never_matched": 1340857,
+      "pct_records_never_matched": 25.37,
+      "ids_linked_to_multiple_source1": 0
+    }
+  },
+  "country_consistency": {
+    "links_same_country": 7638365,
+    "links_cross_country": 0,
+    "cross_country_examples": []
+  },
+  "by_source1_country": {
+    "India": {
+      "source1_entities": 883188,
+      "singletons": 49351,
+      "singleton_pct": 5.59,
+      "average_matches": 3.465
+    },
+    "US": {
+      "source1_entities": 1323633,
+      "singletons": 73896,
+      "singleton_pct": 5.58,
+      "average_matches": 3.459
+    }
+  }
+}

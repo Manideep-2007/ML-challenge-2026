@@ -1,0 +1,57 @@
+{
+  "oracle (predict ground truth)": {
+    "macro_f0.5": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "singleton_macro_f0.5": 1.0,
+    "matched_macro_f0.5": 1.0,
+    "by_country": {
+      "India": 1.0,
+      "US": 1.0
+    }
+  },
+  "all empty (predict no matches)": {
+    "macro_f0.5": 0.055847,
+    "macro_precision": 0.055847,
+    "macro_recall": 0.055847,
+    "singleton_macro_f0.5": 1.0,
+    "matched_macro_f0.5": 0.0,
+    "by_country": {
+      "India": 0.055877,
+      "US": 0.055828
+    }
+  },
+  "one correct match per entity": {
+    "macro_f0.5": 0.696329,
+    "macro_precision": 1.0,
+    "macro_recall": 0.376914,
+    "singleton_macro_f0.5": 1.0,
+    "matched_macro_f0.5": 0.678366,
+    "by_country": {
+      "India": 0.696036,
+      "US": 0.696524
+    }
+  },
+  "half of the true matches (rounded up)": {
+    "macro_f0.5": 0.878104,
+    "macro_precision": 1.0,
+    "macro_recall": 0.611743,
+    "singleton_macro_f0.5": 1.0,
+    "matched_macro_f0.5": 0.870893,
+    "by_country": {
+      "India": 0.878073,
+      "US": 0.878124
+    }
+  },
+  "oracle + 1 false positive per entity": {
+    "macro_f0.5": 0.751564,
+    "macro_precision": 0.716727,
+    "macro_recall": 0.944153,
+    "singleton_macro_f0.5": 0.0,
+    "matched_macro_f0.5": 0.796019,
+    "by_country": {
+      "India": 0.751707,
+      "US": 0.751469
+    }
+  }
+}
