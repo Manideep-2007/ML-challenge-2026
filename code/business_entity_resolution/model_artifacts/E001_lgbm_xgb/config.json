@@ -1,0 +1,6 @@
+{
+  "members": [
+    "M001_all_weighted",
+    "M008_xgboost_all_weighted"
+  ]
+}

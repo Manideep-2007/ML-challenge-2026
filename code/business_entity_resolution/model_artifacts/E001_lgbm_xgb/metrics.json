@@ -1,0 +1,41 @@
+{
+  "model_id": "E001_lgbm_xgb",
+  "members": [
+    "M001_all_weighted",
+    "M008_xgboost_all_weighted"
+  ],
+  "evaluation_scope": "all validation S1",
+  "pair_auc": 0.999937,
+  "pair_logloss": 0.002751,
+  "best_threshold": 0.8,
+  "validation_macro_f05": 0.974373,
+  "validation_precision": 0.987509,
+  "validation_recall": 0.944536,
+  "singleton_f05": 0.964867,
+  "probability_separation": {
+    "positive": {
+      "p1": 0.18367,
+      "p5": 0.91789,
+      "p10": 0.98655,
+      "p25": 0.99916,
+      "p50": 0.99986,
+      "p75": 0.99997,
+      "p90": 0.99999,
+      "p95": 0.99999,
+      "p99": 1.0
+    },
+    "negative": {
+      "p1": 0.0,
+      "p5": 0.0,
+      "p10": 0.0,
+      "p25": 0.0,
+      "p50": 0.0,
+      "p75": 0.0,
+      "p90": 1e-05,
+      "p95": 5e-05,
+      "p99": 0.00679
+    },
+    "negatives_above_0.5": 28030,
+    "positives_below_0.5": 30083
+  }
+}

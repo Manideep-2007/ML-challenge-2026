@@ -1,0 +1,47 @@
+{
+  "model_id": "M001_all_weighted",
+  "evaluation_scope": "all validation S1",
+  "evaluated_s1": 441365,
+  "pair_auc": 0.999937,
+  "pair_logloss": 0.002739,
+  "best_threshold": 0.8,
+  "validation_macro_f05": 0.974027,
+  "validation_precision": 0.987557,
+  "validation_recall": 0.94323,
+  "singleton_f05": 0.966936,
+  "matched_f05": 0.974446,
+  "f05_by_country": {
+    "india": 0.967676,
+    "us": 0.978264
+  },
+  "f05_at_0.5": 0.969133,
+  "probability_separation": {
+    "positive": {
+      "p1": 0.16482,
+      "p5": 0.90978,
+      "p10": 0.98481,
+      "p25": 0.99897,
+      "p50": 0.99983,
+      "p75": 0.99996,
+      "p90": 0.99999,
+      "p95": 0.99999,
+      "p99": 1.0
+    },
+    "negative": {
+      "p1": 0.0,
+      "p5": 0.0,
+      "p10": 0.0,
+      "p25": 0.0,
+      "p50": 0.0,
+      "p75": 0.0,
+      "p90": 1e-05,
+      "p95": 5e-05,
+      "p99": 0.0068
+    },
+    "negatives_above_0.5": 26726,
+    "positives_below_0.5": 31689
+  },
+  "validation_pairs": 61393381,
+  "train_seconds": 212.0,
+  "total_seconds": 1592.0
+}

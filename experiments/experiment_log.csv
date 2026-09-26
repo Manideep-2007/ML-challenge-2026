@@ -1,4 +1,0 @@
-experiment_id,date,description,blocking_recall,precision,recall,macro_f05,threshold,status
-EXP-000,2026-09-25,"Project setup",,,,,,SETUP
-EXP-001,2026-09-25,"Stage 1 data audit (no model)",,,,,,AUDIT
-EXP-002,2026-09-25,"Stage 2 baseline: predict no matches (validation split, floor)",,0.055847,0.055847,0.055847,,BASELINE

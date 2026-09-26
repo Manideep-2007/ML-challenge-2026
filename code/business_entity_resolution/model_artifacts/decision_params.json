@@ -1,0 +1,21 @@
+{
+  "model": "E001_lgbm_xgb",
+  "t_first": 0.8,
+  "t_rest": 0.8,
+  "relative": 0.0,
+  "margin_min": 0.0,
+  "ambiguous": "top1",
+  "cap_s2": 5,
+  "cap_s3": 6,
+  "exclusive": true,
+  "country_t": {
+    "india": [
+      0.8,
+      0.8
+    ],
+    "us": [
+      0.8,
+      0.8
+    ]
+  }
+}

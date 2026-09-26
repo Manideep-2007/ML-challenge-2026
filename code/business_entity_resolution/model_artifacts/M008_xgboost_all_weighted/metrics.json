@@ -1,0 +1,47 @@
+{
+  "model_id": "M008_xgboost_all_weighted",
+  "evaluation_scope": "all validation S1",
+  "evaluated_s1": 441365,
+  "pair_auc": 0.999935,
+  "pair_logloss": 0.002889,
+  "best_threshold": 0.85,
+  "validation_macro_f05": 0.973949,
+  "validation_precision": 0.987662,
+  "validation_recall": 0.942613,
+  "singleton_f05": 0.966165,
+  "matched_f05": 0.974409,
+  "f05_by_country": {
+    "india": 0.967776,
+    "us": 0.978068
+  },
+  "f05_at_0.5": 0.96546,
+  "probability_separation": {
+    "positive": {
+      "p1": 0.18364,
+      "p5": 0.93129,
+      "p10": 0.98959,
+      "p25": 0.99942,
+      "p50": 0.99991,
+      "p75": 0.99998,
+      "p90": 0.99999,
+      "p95": 1.0,
+      "p99": 1.0
+    },
+    "negative": {
+      "p1": 0.0,
+      "p5": 0.0,
+      "p10": 0.0,
+      "p25": 0.0,
+      "p50": 0.0,
+      "p75": 0.0,
+      "p90": 1e-05,
+      "p95": 4e-05,
+      "p99": 0.00615
+    },
+    "negatives_above_0.5": 34081,
+    "positives_below_0.5": 29092
+  },
+  "validation_pairs": 61393381,
+  "train_seconds": 532.7,
+  "total_seconds": 362.4
+}

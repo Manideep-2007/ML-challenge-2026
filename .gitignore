@@ -8,16 +8,19 @@ venv/
 
 .env
 
-models/
+# root-level scratch only (code/business_entity_resolution/src/models/ is source code)
+/models/
 *.pkl
 *.joblib
 
-experiments/tmp/
-
+# challenge data (not redistributable)
 challenge/
-output/
-
 6ab10eb3b23ba_student_resource/
 
-experiments/stage1/*_duplicate_*.csv
-experiments/stage2/validation_ground_truth.tsv
+# generated data and experiment results (regenerable, not part of the submission)
+artifacts/
+experiments/
+*_submission.zip
+
+# candidate_pairs.tsv (~3 GB) exceeds GitHub's file limit; it ships in the submission zip
+output/candidate_pairs.tsv
