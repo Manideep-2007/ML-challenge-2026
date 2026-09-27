@@ -4,6 +4,7 @@ Stage 8 controlled experiments: ONE change against the frozen baseline.
     python src/analysis/run_stage8_experiments.py --experiment E001   # hard-example mining (model)
     python src/analysis/run_stage8_experiments.py --experiment E002   # name-only features v2 (features)
     python src/analysis/run_stage8_experiments.py --experiment E003   # empty-address char retrieval (blocking)
+    python src/analysis/run_stage8_experiments.py --experiment E004   # street-level features v3 (features)
 
 Every experiment is scored on the fixed 25% validation S1 subset used for the
 Stage 6 model comparison, with the frozen Stage 7 decision rules, and compared
@@ -166,6 +167,24 @@ def e002(s1_index, true_counts, params, baseline):
                   "features", experiment, baseline, json.dumps(fit_info))
 
 
+def e004(s1_index, true_counts, params, baseline):
+    """v3 = v2 + street features; needs features/add_street_features.py run first."""
+    train_v3 = FEATURES / "train_sample_pairs_v3.parquet"
+    valid_v3 = FEATURES / "validation_subset_pairs_v3.parquet"
+    if not (train_v3.exists() and valid_v3.exists()):
+        subprocess.run([sys.executable, "-u", str(SRC / "features" / "add_street_features.py")], check=True)
+    sample = ds.sample_training_pairs(train_v3, SAMPLING["hard_rate"], SAMPLING["medium_rate"],
+                                      SAMPLING["easy_rate"], SEED)
+    predict, used, fit_info = train_ensemble(sample, ds.feature_columns(train_v3))
+    pred = score_subset(valid_v3, predict, used, s1_index)
+    pred.to_parquet(STAGE8 / "E004_validation_subset_predictions.parquet")
+    experiment = entity_table(pred, s1_index, true_counts, params)
+    return record("E004", "feature set v3: v2 + street-level address evidence + dotted legal forms",
+                  "siblings (same name / house number / city, different street + legal form) get high "
+                  "whole-address overlap; France test collisions 4% of refs vs 0.09% on validation",
+                  "features", experiment, baseline, json.dumps(fit_info))
+
+
 def e003():
     """Retrieval-level measurement on the TRAIN tuning sample (validation untouched)."""
     channels = "content_name,fingerprint_name,fingerprint_address,hybrid_translated,char_name_no_address"
@@ -193,7 +212,7 @@ def e003():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--experiment", required=True, choices=["E001", "E002", "E003"])
+    parser.add_argument("--experiment", required=True, choices=["E001", "E002", "E003", "E004"])
     args = parser.parse_args()
     (STAGE8 / "errors").mkdir(parents=True, exist_ok=True)
     if args.experiment == "E003":
@@ -202,7 +221,7 @@ def main():
     params = decision_params()
     s1_index, true_counts, _ = validation_context(0.25)
     baseline = baseline_table(s1_index, true_counts, params)
-    {"E001": e001, "E002": e002}[args.experiment](s1_index, true_counts, params, baseline)
+    {"E001": e001, "E002": e002, "E004": e004}[args.experiment](s1_index, true_counts, params, baseline)
 
 
 if __name__ == "__main__":
