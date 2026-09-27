@@ -40,6 +40,16 @@ WORK = ROOT / "artifacts" / "stacking"
 REPORT = ROOT / "experiments" / "stage9"
 MODEL_ARTIFACTS = SRC.parent / "model_artifacts"
 OUT_MODEL = MODEL_ARTIFACTS / "collective"
+VARIANT = {"name": "v1", "suffix": "", "experiment": "E005", "evidence": False}
+
+
+def configure(variant: str):
+    """v1: collective features (E005). v2: + pair-local stage-1 v2 / street evidence (E006)."""
+    global OUT_MODEL, REPORT
+    if variant == "v2":
+        VARIANT.update({"name": "v2", "suffix": "_v2", "experiment": "E006", "evidence": True})
+        OUT_MODEL = MODEL_ARTIFACTS / "collective_v2"
+        REPORT = ROOT / "experiments" / "stage9" / "v2"
 VALIDATION_PRED = ROOT / "artifacts" / "predictions" / "E001_lgbm_xgb_validation.parquet"
 VALIDATION_GT = ROOT / "experiments" / "stage2" / "validation_ground_truth.tsv"
 DECISION = (MODEL_ARTIFACTS if (MODEL_ARTIFACTS / "decision_params.json").exists()
@@ -78,7 +88,7 @@ def load_text(paths, ids) -> pd.DataFrame:
 
 
 def validation_frame() -> pd.DataFrame:
-    path = WORK / "validation_collective.parquet"
+    path = WORK / f"validation_collective{VARIANT['suffix']}.parquet"
     if path.exists():
         return pd.read_parquet(path)
     WORK.mkdir(parents=True, exist_ok=True)
@@ -92,6 +102,8 @@ def validation_frame() -> pd.DataFrame:
     frame = collective_features(pairs[["s1", "cand", "p"]], s1, ref)
     frame["label"] = label.reindex(pd.MultiIndex.from_frame(frame[["s1", "cand"]])).to_numpy().astype(np.int8)
     frame["country"] = s1["country_key"].reindex(frame["s1"]).to_numpy()
+    if VARIANT["evidence"]:
+        frame = with_evidence(frame, "validation")
     frame.to_parquet(path)
     print(f"  validation collective features: {len(frame):,} pairs ({time.time() - start:.0f}s)")
     return frame
@@ -104,6 +116,38 @@ def ground_truth():
     country = pd.read_parquet(NORMALIZED / "train_source1.parquet", columns=["entity_id", "country_key"]) \
         .set_index("entity_id")["country_key"].reindex(ids).to_numpy()
     return ids, true_counts, country
+
+
+def with_evidence(frame: pd.DataFrame, split: str, country: str | None = None) -> pd.DataFrame:
+    """Append pair-local stage-1 v2 + street features (stacking/pair_evidence.py)."""
+    from stacking.pair_evidence import PROVENANCE, pair_evidence
+    from inference.pipeline import part_files
+    from features.feature_builder import reference_document_frequencies
+    keys = frame[["s1", "cand"]].rename(columns={"s1": "source1_entity_id", "cand": "candidate_entity_id"})
+    if split == "validation":
+        translations = ROOT / "experiments" / "stage4"
+        s1_paths = [NORMALIZED / "train_source1.parquet"]
+        ref_paths = [NORMALIZED / "train_source2.parquet", NORMALIZED / "train_source3.parquet"]
+        df_path = WORK / "train_reference_document_frequencies.joblib"
+        if not df_path.exists():
+            joblib.dump(reference_document_frequencies(ref_paths, translations), df_path)
+        global_df = joblib.load(df_path)
+        candidate_files = [ROOT / "artifacts" / "candidates" / "validation_candidates.parquet"]
+    else:
+        translations = MODEL_ARTIFACTS / "translations"
+        s1_paths = [NORMALIZED / "test_source1.parquet"]
+        ref_paths = [NORMALIZED / "test_source2.parquet", NORMALIZED / "test_source3.parquet"]
+        global_df = joblib.load(TEST_FINAL / "reference_document_frequencies.joblib")
+        candidate_files = part_files(TEST_FINAL / country, "candidates")
+    wanted = set(keys["source1_entity_id"])
+    columns = ["source1_entity_id", "candidate_entity_id", "candidate_source"] + PROVENANCE
+    prov = pd.concat([pq.read_table(f, columns=columns, filters=[("source1_entity_id", "in", list(wanted))]).to_pandas()
+                      for f in candidate_files], ignore_index=True)
+    pairs = keys.merge(prov, on=["source1_entity_id", "candidate_entity_id"], how="left")
+    if pairs["candidate_source"].isna().any():
+        raise ValueError("stage-2 pairs missing from the candidate file")
+    evidence = pair_evidence(pairs, s1_paths, ref_paths, translations, global_df, country)
+    return pd.concat([frame.reset_index(drop=True), evidence], axis=1)
 
 
 # ------------------------------------------------------------------ model
@@ -137,7 +181,7 @@ def evaluate():
     frame["fold"] = fold_of(frame["s1"])
     oof = np.zeros(len(frame), np.float32)
     importance = []
-    oof_path = WORK / "validation_oof.parquet"
+    oof_path = WORK / f"validation_oof{VARIANT['suffix']}.parquet"
     if oof_path.exists():   # resume: out-of-fold scores already computed
         saved = pd.read_parquet(oof_path)
         if saved[["s1", "cand"]].equals(frame[["s1", "cand"]]):
@@ -150,7 +194,7 @@ def evaluate():
         importance.append(pd.Series(model.feature_importance("gain"), index=features))
         print(f"  fold {k}: best_iteration {model.best_iteration}")
     frame["p2"] = oof
-    frame[["s1", "cand", "p", "p2", "label", "fold"]].to_parquet(WORK / "validation_oof.parquet")
+    frame[["s1", "cand", "p", "p2", "label", "fold"]].to_parquet(oof_path)
 
     # threshold per fold chosen on the OTHER folds' out-of-fold scores
     s1_fold = pd.Series(fold_of(pd.Series(ids)), index=ids)
@@ -176,8 +220,9 @@ def evaluate():
                       "collective": round(experiment.loc[experiment["country"] == c, "f05"].mean(), 6)}
                   for c in sorted(set(country))}
     final_t = float(curves.loc[curves["all"].idxmax(), "t"])
-    row = {"experiment_id": "E005", "date": date.today().isoformat(), "baseline_version": "baseline_v1",
-           "change": "collective second-stage matcher (anchor agreement + probability structure + street)",
+    row = {"experiment_id": VARIANT["experiment"], "date": date.today().isoformat(), "baseline_version": "baseline_v1",
+           "change": "collective second-stage matcher (anchor agreement + probability structure + street)"
+                     + (" + pair-local stage-1 v2 / street evidence" if VARIANT["evidence"] else ""),
            "hypothesis": "records of one business agree with each other; siblings disagree with the anchors",
            "affected_component": "model (stage 2)",
            **{k: result[k] for k in ("s1", "baseline_macro_f05", "experiment_macro_f05", "delta_f05", "delta_p05",
@@ -194,47 +239,108 @@ def evaluate():
     print(json.dumps(row, indent=2))
 
 
+FIRST_GRID = [0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70]
+REST_GRID = [0.60, 0.65, 0.70, 0.725, 0.75, 0.80]
+# France has no labels and ~5x more mid-probability pairs than validation (sibling businesses):
+# F0.5 punishes false merges, so its best-candidate threshold never goes below the single
+# threshold E005 selected (0.65) -- a deliberate, conservative choice for an unmeasured segment.
+FRANCE_MIN_FIRST = 0.65
+
+
+def tune_decision():
+    """(t_first, t_rest) on stage-2 out-of-fold scores; reported cross-fold, chosen on all folds."""
+    oof = pd.read_parquet(WORK / f"validation_oof{VARIANT['suffix']}.parquet")
+    ids, true_counts, country = ground_truth()
+    code = ids.get_indexer(oof["s1"]).astype(np.int64)
+    cand, _ = pd.factorize(oof["cand"])
+    scored = prepare(code, cand.astype(np.int64), oof["cand"].str.startswith("S2-").to_numpy(),
+                     oof["p2"].to_numpy(np.float32), oof["label"].to_numpy(np.int8), country, floor=0.0)
+    fold = fold_of(pd.Series(ids))
+    rows = []
+    for tf in FIRST_GRID:
+        for tr in REST_GRID:
+            p = base_params()
+            p.t_first, p.t_rest = tf, tr
+            f = entity_outcomes(scored, select(scored, p), true_counts)["f05"]
+            rows.append({"t_first": tf, "t_rest": tr, "all": f.mean(),
+                         **{f"fold{k}": f[fold == k].mean() for k in range(FOLDS)}})
+    grid = pd.DataFrame(rows)
+    grid.to_csv(REPORT / "decision_grid.csv", index=False)
+    honest = 0.0
+    for k in range(FOLDS):
+        others = grid[[f"fold{j}" for j in range(FOLDS) if j != k]].mean(axis=1)
+        honest += grid.loc[others.idxmax(), f"fold{k}"] * (fold == k).sum()
+    best = grid.loc[grid["all"].idxmax()]
+    result = {"t_first": float(best["t_first"]), "t_rest": float(best["t_rest"]),
+              "validation_f05": round(float(best["all"]), 6), "cross_fold_f05": round(honest / len(fold), 6),
+              "country_t": {"france": [max(float(best["t_first"]), FRANCE_MIN_FIRST), float(best["t_rest"])]}}
+    (REPORT / "decision.json").write_text(json.dumps(result, indent=2))
+    print(json.dumps(result, indent=2))
+    return result
+
+
 def fit_final():
     frame = validation_frame()
     features = feature_names(frame)
-    evaluation = json.loads((REPORT / "evaluation.json").read_text())
-    threshold = json.loads(evaluation["notes"])["final_threshold"]
+    decision = tune_decision()
     model = fit(frame, features)
     OUT_MODEL.mkdir(parents=True, exist_ok=True)
     model.save_model(str(OUT_MODEL / "model.txt"), num_iteration=model.best_iteration)
     (OUT_MODEL / "config.json").write_text(json.dumps(
-        {"features": features, "threshold": threshold, "floor": FLOOR,
+        {"features": features, "t_first": decision["t_first"], "t_rest": decision["t_rest"],
+         "country_t": decision["country_t"], "floor": FLOOR,
          "trained_on": "validation-split pairs (stage-1 E001_lgbm_xgb out-of-sample probabilities)",
          "best_iteration": model.best_iteration}, indent=2))
-    print(f"saved {OUT_MODEL} (threshold {threshold})")
+    print(f"saved {OUT_MODEL} ({decision})")
 
 
 # ------------------------------------------------------------------ test
-def apply_test():
+def decision_from_config(config: dict) -> DecisionParams:
+    p = base_params()
+    if "t_first" in config:
+        p.t_first, p.t_rest = config["t_first"], config["t_rest"]
+        p.country_t = {k: tuple(v) for k, v in config.get("country_t", {}).items()}
+    else:   # first release: one threshold
+        p.t_first = p.t_rest = config["threshold"]
+    return p
+
+
+def apply_test(rescore: bool = True):
+    """Stage-2 scores per country are cached in artifacts/stacking/test_<country>.parquet;
+    rescore=False only re-applies the decision rules."""
     from inference.pipeline import part_files
     config = json.loads((OUT_MODEL / "config.json").read_text())
     model = lgb.Booster(model_file=str(OUT_MODEL / "model.txt"))
-    params = with_threshold(config["threshold"])
+    params = decision_from_config(config)
     s1_all = pd.read_parquet(NORMALIZED / "test_source1.parquet", columns=["entity_id", "country_key"])
     matches = {k: [] for k in s1_all["entity_id"]}
     for country in sorted(s1_all["country_key"].unique()):
         start = time.time()
-        pred = pd.concat([pq.read_table(f, filters=[("probability", ">=", FLOOR)]).to_pandas()
-                          for f in part_files(TEST_FINAL / country, "predictions")], ignore_index=True)
-        pairs = pred.rename(columns={"source1_entity_id": "s1", "candidate_entity_id": "cand", "probability": "p"})
-        s1 = load_text([NORMALIZED / "test_source1.parquet"], set(pairs["s1"]))
-        ref = load_text([NORMALIZED / "test_source2.parquet", NORMALIZED / "test_source3.parquet"], set(pairs["cand"]))
-        frame = collective_features(pairs, s1, ref)
-        prob = model.predict(frame[config["features"]]).astype(np.float32)
+        cache = WORK / f"test_{country}{VARIANT['suffix']}.parquet"
+        if rescore or not cache.exists():
+            pred = pd.concat([pq.read_table(f, filters=[("probability", ">=", FLOOR)]).to_pandas()
+                              for f in part_files(TEST_FINAL / country, "predictions")], ignore_index=True)
+            pairs = pred.rename(columns={"source1_entity_id": "s1", "candidate_entity_id": "cand", "probability": "p"})
+            s1 = load_text([NORMALIZED / "test_source1.parquet"], set(pairs["s1"]))
+            ref = load_text([NORMALIZED / "test_source2.parquet", NORMALIZED / "test_source3.parquet"],
+                            set(pairs["cand"]))
+            frame = collective_features(pairs, s1, ref)
+            if VARIANT["evidence"]:
+                frame = with_evidence(frame, "test", country)
+            frame["p2"] = model.predict(frame[config["features"]]).astype(np.float32)
+            frame = frame[["s1", "cand", "is_s2", "p", "p2"]]
+            frame.to_parquet(cache)
+        else:
+            frame = pd.read_parquet(cache)
         ids = pd.Index(s1_all.loc[s1_all["country_key"] == country, "entity_id"])
         code = ids.get_indexer(frame["s1"]).astype(np.int64)
         cand, cand_ids = pd.factorize(frame["cand"])
-        scored = prepare(code, cand.astype(np.int64), frame["is_s2"].to_numpy() == 1, prob,
+        scored = prepare(code, cand.astype(np.int64), frame["is_s2"].to_numpy() == 1, frame["p2"].to_numpy(np.float32),
                          np.zeros(len(frame), np.int8), np.full(len(ids), country, dtype=object), floor=0.0)
         keep = select(scored, params)
         for c, r in zip(scored.code[keep], scored.cand[keep]):
             matches[ids[c]].append(cand_ids[r])
-        print(f"  {country}: {len(frame):,} pairs re-scored, {int(keep.sum()):,} matches ({time.time() - start:.0f}s)")
+        print(f"  {country}: {len(frame):,} pairs, {int(keep.sum()):,} matches ({time.time() - start:.0f}s)")
     OUTPUT.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT / "matching_results.tsv", "w", encoding="utf-8", newline="\n") as f:
         f.write("source1_entity_id\tmatched_entity_ids\n")
@@ -246,16 +352,19 @@ def apply_test():
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--variant", choices=["v1", "v2"], default="v1")
     parser.add_argument("--evaluate", action="store_true")
     parser.add_argument("--fit", action="store_true")
     parser.add_argument("--apply-test", action="store_true")
+    parser.add_argument("--decide-only", action="store_true", help="re-apply decision rules to cached test scores")
     args = parser.parse_args()
+    configure(args.variant)
     if args.evaluate:
         evaluate()
     if args.fit:
         fit_final()
-    if args.apply_test:
-        apply_test()
+    if args.apply_test or args.decide_only:
+        apply_test(rescore=not args.decide_only)
 
 
 if __name__ == "__main__":

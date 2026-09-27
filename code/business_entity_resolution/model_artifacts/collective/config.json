@@ -36,7 +36,14 @@
     "street_house_match",
     "legal_conflict_dotted"
   ],
-  "threshold": 0.65,
+  "t_first": 0.5,
+  "t_rest": 0.7,
+  "country_t": {
+    "france": [
+      0.65,
+      0.7
+    ]
+  },
   "floor": 0.02,
   "trained_on": "validation-split pairs (stage-1 E001_lgbm_xgb out-of-sample probabilities)",
   "best_iteration": 1528
