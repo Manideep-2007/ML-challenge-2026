@@ -52,8 +52,12 @@ python -m src.main --split test --all-countries-in-subprocesses
 
 Test inference runs one country at a time, each in a fresh process (no true link
 crosses countries and every blocking channel is country-scoped, so this is exact;
-IDF statistics still come from the whole test reference universe). Each finished
-country leaves a `done.json` marker, so an interrupted run resumes where it stopped.
+IDF statistics still come from the whole test reference universe). Every 20k-S1 chunk
+is written atomically as its own parquet part and each finished country leaves a
+`done.json` marker, so an interrupted run resumes at the first missing chunk.
+`candidate_pairs.tsv` is streamed chunk by chunk and checked by a streamed copy of the
+validator rules (the official validator keeps all ~200M candidate IDs in memory);
+`matching_results.tsv` is checked by the official validator with `--check-ids`.
 On machines with more than ~32 GB RAM, `python -m src.main --split test` runs all
 countries in one process.
 

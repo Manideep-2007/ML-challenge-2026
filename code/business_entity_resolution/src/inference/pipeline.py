@@ -171,46 +171,61 @@ class Pipeline:
         return prob, feature_seconds
 
     def run(self, out_dir: Path, chunk_size: int = 100_000) -> dict:
-        """Candidates + probabilities for every S1, written as parquet chunks."""
-        out_dir.mkdir(parents=True, exist_ok=True)
-        cand_writer = pred_writer = None
+        """Candidates + probabilities for every S1, one parquet part per chunk.
+
+        Parts are written atomically (tmp + rename) and finished parts are skipped,
+        so an interrupted run resumes at the first missing chunk.
+        """
+        parts = out_dir / "parts"
+        parts.mkdir(parents=True, exist_ok=True)
         start, pairs = time.time(), 0
-        try:
-            for begin in range(0, len(self.s1), chunk_size):
-                positions = np.arange(begin, min(begin + chunk_size, len(self.s1)))
-                t0 = time.time()
-                cands = self.candidates(positions)
-                t1 = time.time()
-                if len(cands) == 0:
-                    self.log(f"  S1 {positions[-1] + 1:,}/{len(self.s1):,}  no candidates")
-                    continue
-                prob, feature_seconds = self.score(cands)
-                t2 = time.time()
-                cand_table = pa.Table.from_pandas(cands, preserve_index=False)
-                pred_table = pa.table({"source1_entity_id": cands["source1_entity_id"].to_numpy(),
-                                       "candidate_entity_id": cands["candidate_entity_id"].to_numpy(),
-                                       "probability": prob})
-                if cand_writer is None:
-                    cand_writer = pq.ParquetWriter(out_dir / "candidates.parquet", cand_table.schema, compression="zstd")
-                    pred_writer = pq.ParquetWriter(out_dir / "predictions.parquet", pred_table.schema, compression="zstd")
-                cand_writer.write_table(cand_table)
-                pred_writer.write_table(pred_table)
-                pairs += len(cands)
-                self.log(f"  S1 {positions[-1] + 1:,}/{len(self.s1):,}  pairs {pairs:,}  {time.time() - start:.0f}s  "
-                         f"(candidates {t1 - t0:.0f}s, features {feature_seconds:.0f}s, model {t2 - t1 - feature_seconds:.0f}s)")
-        finally:
-            for w in (cand_writer, pred_writer):
-                if w is not None:
-                    w.close()
+        for begin in range(0, len(self.s1), chunk_size):
+            positions = np.arange(begin, min(begin + chunk_size, len(self.s1)))
+            cand_path, pred_path = parts / f"candidates_{begin:08d}.parquet", parts / f"predictions_{begin:08d}.parquet"
+            if pred_path.exists() and cand_path.exists():
+                pairs += pq.ParquetFile(pred_path).metadata.num_rows
+                self.log(f"  S1 {positions[-1] + 1:,}/{len(self.s1):,}  reused part")
+                continue
+            t0 = time.time()
+            cands = self.candidates(positions)
+            t1 = time.time()
+            if len(cands) == 0:
+                self.log(f"  S1 {positions[-1] + 1:,}/{len(self.s1):,}  no candidates")
+                continue
+            prob, feature_seconds = self.score(cands)
+            t2 = time.time()
+            cand_table = pa.Table.from_pandas(cands, preserve_index=False)
+            pred_table = pa.table({"source1_entity_id": cands["source1_entity_id"].to_numpy(),
+                                   "candidate_entity_id": cands["candidate_entity_id"].to_numpy(),
+                                   "probability": prob})
+            for table, path in ((cand_table, cand_path), (pred_table, pred_path)):
+                tmp = path.with_suffix(".tmp")
+                pq.write_table(table, tmp, compression="zstd")
+                tmp.replace(path)
+            pairs += len(cands)
+            self.log(f"  S1 {positions[-1] + 1:,}/{len(self.s1):,}  pairs {pairs:,}  {time.time() - start:.0f}s  "
+                     f"(candidates {t1 - t0:.0f}s, features {feature_seconds:.0f}s, model {t2 - t1 - feature_seconds:.0f}s)")
         return {"s1": len(self.s1), "pairs": pairs, "seconds": round(time.time() - start, 1)}
+
+
+def part_files(out_dir: Path, kind: str) -> list[Path]:
+    """Chunk parts in S1 order; falls back to a single legacy file."""
+    parts = sorted((out_dir / "parts").glob(f"{kind}_*.parquet"))
+    legacy = out_dir / f"{kind}.parquet"
+    return parts or ([legacy] if legacy.exists() else [])
 
 
 def decide(out_dirs, s1_ids: np.ndarray, params: DecisionParams,
            s1_country: pd.Series) -> dict[str, list[str]]:
     """Apply the Stage 7 decision rules to all predictions (exclusivity across every S1)."""
     out_dirs = [out_dirs] if isinstance(out_dirs, Path) else list(out_dirs)
-    table = pd.concat([pq.read_table(d / "predictions.parquet").to_pandas() for d in out_dirs
-                       if (d / "predictions.parquet").exists()], ignore_index=True)
+    # Exact pre-filter: a pair below every threshold can never be kept, and dropping
+    # the lowest-probability pairs of an S1 does not change the ranks of the others
+    # (the margin rule needs the true second-best, so it disables the filter).
+    floor = min([params.t_first, params.t_rest] + [t for pair in params.country_t.values() for t in pair])
+    floor = floor if params.margin_min == 0 else 0.0
+    table = pd.concat([pq.read_table(f, filters=[("probability", ">=", floor)]).to_pandas()
+                       for d in out_dirs for f in part_files(d, "predictions")], ignore_index=True)
     s1_index = pd.Index(s1_ids)
     code = s1_index.get_indexer(table["source1_entity_id"]).astype(np.int64)
     cand_code, cand_ids = pd.factorize(table["candidate_entity_id"])

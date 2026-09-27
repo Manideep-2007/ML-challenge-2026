@@ -29,7 +29,7 @@ from blocking.indexes import open_records  # noqa: E402
 from blocking.run_stage4 import CONFIG as BLOCKING_CONFIG, learn_translators  # noqa: E402
 from evaluation.evaluator import evaluate_predictions, load_ground_truth  # noqa: E402
 from decision.decision_engine import DecisionParams  # noqa: E402
-from inference.pipeline import Pipeline, decide  # noqa: E402
+from inference.pipeline import Pipeline, decide, part_files  # noqa: E402
 from features.feature_builder import reference_document_frequencies  # noqa: E402
 
 NORMALIZED = ROOT / "artifacts" / "normalized"
@@ -59,19 +59,88 @@ def write_tsv(path: Path, rows: dict[str, list[str]], column: str):
             f.write(f"{s1_id}\t{','.join(dict.fromkeys(ids))}\n")
 
 
+def s1_aligned_frames(files, row_groups_per_read: int = 8):
+    """(source1_entity_id, candidate_entity_id) frames that never split one S1's rows
+    (a legacy single file is read a few row groups at a time)."""
+    import pyarrow.parquet as pq
+    carry = None
+    for path in files:
+        pf = pq.ParquetFile(path)
+        for g in range(0, pf.num_row_groups, row_groups_per_read):
+            groups = list(range(g, min(g + row_groups_per_read, pf.num_row_groups)))
+            frame = pf.read_row_groups(groups, columns=["source1_entity_id", "candidate_entity_id"]).to_pandas()
+            if carry is not None:
+                frame = pd.concat([carry, frame], ignore_index=True)
+            last = frame["source1_entity_id"].iat[-1]
+            tail = frame["source1_entity_id"].to_numpy() == last
+            carry, frame = frame[tail], frame[~tail]
+            if len(frame):
+                yield frame
+    if carry is not None and len(carry):
+        yield carry
+
+
+def write_candidate_tsv(path: Path, out_dirs, s1_ids: np.ndarray):
+    """Stream candidate_pairs.tsv chunk by chunk (every S1 row, empty list when no candidates)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    seen = set()
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("source1_entity_id\tcandidate_entity_ids\n")
+        for d in out_dirs:
+            for frame in s1_aligned_frames(part_files(d, "candidates")):
+                frame = frame.drop_duplicates()
+                grouped = frame.groupby("source1_entity_id", sort=False)["candidate_entity_id"].agg(",".join)
+                f.writelines(f"{k}\t{v}\n" for k, v in grouped.items() if k not in seen)
+                seen.update(grouped.index)
+        f.writelines(f"{k}\t\n" for k in s1_ids if k not in seen)
+
+
+def check_candidate_tsv(path: Path, s1_ids: set, matching_path: Path) -> dict:
+    """Validator rules for candidate_pairs.tsv, streamed: header, one row per S1, no duplicate IDs,
+    only S2-/S3- IDs, and every final match contained in its S1's candidate list."""
+    matches = {}
+    with open(matching_path, encoding="utf-8") as f:
+        next(f)
+        for line in f:
+            k, v = line.rstrip("\n").split("\t")
+            if v:
+                matches[k] = set(v.split(","))
+    rows, issues, seen = 0, [], set()
+    with open(path, encoding="utf-8") as f:
+        if next(f).rstrip("\n") != "source1_entity_id\tcandidate_entity_ids":
+            issues.append("bad header")
+        for line in f:
+            k, v = line.rstrip("\n").split("\t")
+            rows += 1
+            ids = v.split(",") if v else []
+            if k in seen or k not in s1_ids:
+                issues.append(f"row {k}: duplicate or unknown S1")
+            seen.add(k)
+            if len(ids) != len(set(ids)) or any(not i.startswith(("S2-", "S3-")) for i in ids):
+                issues.append(f"row {k}: duplicate or non S2/S3 candidate")
+            if k in matches and not matches[k] <= set(ids):
+                issues.append(f"row {k}: match outside candidates")
+            if len(issues) > 20:
+                break
+    if seen != s1_ids:
+        issues.append(f"missing S1 rows: {len(s1_ids - seen)}")
+    return {"rows": rows, "issues": issues[:20], "ok": not issues}
+
+
 def reproduction_check(work: Path, s1_ids: set, model_id: str) -> dict:
     """Pipeline output vs the staged Stage 4 candidates and Stage 6 validation predictions."""
     staged_c = pd.read_parquet(ROOT / "artifacts" / "candidates" / "validation_candidates.parquet",
                                columns=["source1_entity_id", "candidate_entity_id"])
     staged_c = staged_c[staged_c["source1_entity_id"].isin(s1_ids)]
-    piped_c = pd.read_parquet(work / "candidates.parquet", columns=["source1_entity_id", "candidate_entity_id"])
+    piped_c = pd.concat([pd.read_parquet(f, columns=["source1_entity_id", "candidate_entity_id"])
+                         for f in part_files(work, "candidates")], ignore_index=True)
     staged_keys = set(zip(staged_c["source1_entity_id"], staged_c["candidate_entity_id"]))
     piped_keys = set(zip(piped_c["source1_entity_id"], piped_c["candidate_entity_id"]))
 
     staged_p = pd.read_parquet(ROOT / "artifacts" / "predictions" / f"{model_id}_validation.parquet",
                                columns=["source1_entity_id", "candidate_entity_id", "probability"])
     staged_p = staged_p[staged_p["source1_entity_id"].isin(s1_ids)]
-    piped_p = pd.read_parquet(work / "predictions.parquet")
+    piped_p = pd.concat([pd.read_parquet(f) for f in part_files(work, "predictions")], ignore_index=True)
     joined = staged_p.merge(piped_p, on=["source1_entity_id", "candidate_entity_id"], suffixes=("_staged", "_pipeline"))
     diff = (joined["probability_staged"] - joined["probability_pipeline"]).abs()
     return {
@@ -192,12 +261,6 @@ def main():
            "seconds": round(sum(r["seconds"] for r in runs), 1), "per_country": runs}
 
     matches = decide(out_dirs, s1_ids_ordered, params, country)
-    candidates = pd.concat([pd.read_parquet(d / "candidates.parquet", columns=["source1_entity_id", "candidate_entity_id"])
-                            for d in out_dirs if (d / "candidates.parquet").exists()], ignore_index=True)
-    candidate_lists = {k: [] for k in s1_ids_ordered}
-    for s1_id, group in candidates.groupby("source1_entity_id", sort=False)["candidate_entity_id"]:
-        candidate_lists[s1_id] = group.tolist()
-    del candidates
 
     summary = {"split": args.split, "model": model_dir.name, "decision": decision, **run,
                "predicted_matches": int(sum(len(v) for v in matches.values())),
@@ -205,13 +268,18 @@ def main():
 
     if args.split == "test":
         write_tsv(OUTPUT / "matching_results.tsv", matches, "matched_entity_ids")
-        write_tsv(OUTPUT / "candidate_pairs.tsv", candidate_lists, "candidate_entity_ids")
+        write_candidate_tsv(OUTPUT / "candidate_pairs.tsv", out_dirs, s1_ids_ordered)
+        # The official validator holds every candidate in Python sets (~200M test pairs does
+        # not fit in 16 GB), so the leaderboard file is validated with --check-ids and the
+        # candidate file is checked by check_candidate_tsv (same rules, streamed).
         result = subprocess.run(
             [sys.executable, str(ROOT / "challenge" / "utils" / "validate_submission.py"),
              "--matching", str(OUTPUT / "matching_results.tsv"),
-             "--candidate", str(OUTPUT / "candidate_pairs.tsv"),
-             "--test-dir", str(ROOT / "challenge" / "dataset" / "test")],
+             "--candidate", str(OUTPUT / "__none__.tsv"),
+             "--test-dir", str(ROOT / "challenge" / "dataset" / "test"), "--check-ids"],
             capture_output=True, text=True)
+        summary["candidate_file_check"] = check_candidate_tsv(OUTPUT / "candidate_pairs.tsv", set(s1_ids_ordered),
+                                                              OUTPUT / "matching_results.tsv")
         print(result.stdout, result.stderr)
         summary["validator_exit_code"] = result.returncode
     else:

@@ -81,7 +81,8 @@ IDF; retrieval is a sparse matrix product with vectorized top-K, multi-threaded.
 - **Blocking keys used:** normalized name / name fingerprint / address fingerprint (exact), and
   IDF-weighted rare-token overlap of name + address with learned token translation (ranked).
 - **Candidate pairs generated:** validation 61.4M (median 100, mean 139 per S1);
-  test [TEST_CANDIDATE_PAIRS].
+  test 222.4M over 1,732,544 S1 (mean 128 per S1; France 36.4M, India 101.2M, US 84.8M).
+  Test output: 5,588,777 predicted matches; 1,627,229 S1 with at least one match, 105,315 predicted singletons (6.1%).
 - **How you ensured true matches were not lost:** channels were chosen by measured recall on a
   50,000-S1 training sample (10 channels tried, leave-one-out contribution measured, top-K and
   `max_df` swept) and confirmed once on validation: **97.55% of true pairs retrieved; 99.77% of
