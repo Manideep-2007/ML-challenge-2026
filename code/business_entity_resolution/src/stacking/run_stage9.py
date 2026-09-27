@@ -63,6 +63,21 @@ PARAMS = {"objective": "binary", "learning_rate": 0.03, "num_leaves": 63, "min_c
           "random_state": 42, "n_jobs": -1, "verbosity": -1}
 
 
+def ownership(s1: np.ndarray, cand: np.ndarray, prob: np.ndarray) -> np.ndarray:
+    """
+    Exclusivity-aware probability: every S2/S3 record belongs to at most one S1, so the
+    competing S1 of one record are alternatives, not independent events. With p_i the
+    pairwise probability of S1 i for the record,
+        P(record belongs to S1 a) = odds_a / (1 + sum_i odds_i),   odds = p / (1 - p).
+    Equals p_a when only one S1 wants the record. Test has every S1 present (validation
+    only 20% of them), so this matters most on test -- sibling businesses in particular.
+    """
+    p = np.clip(prob.astype(np.float64), 1e-6, 1 - 1e-6)
+    odds = p / (1 - p)
+    total = pd.Series(odds).groupby(cand).transform("sum").to_numpy()
+    return (odds / (1 + total)).astype(np.float32)
+
+
 def base_params() -> DecisionParams:
     raw = json.loads(DECISION.read_text())
     raw.pop("model", None)
@@ -253,8 +268,9 @@ def tune_decision():
     ids, true_counts, country = ground_truth()
     code = ids.get_indexer(oof["s1"]).astype(np.int64)
     cand, _ = pd.factorize(oof["cand"])
+    owned = ownership(oof["s1"].to_numpy(), oof["cand"].to_numpy(), oof["p2"].to_numpy())
     scored = prepare(code, cand.astype(np.int64), oof["cand"].str.startswith("S2-").to_numpy(),
-                     oof["p2"].to_numpy(np.float32), oof["label"].to_numpy(np.int8), country, floor=0.0)
+                     owned, oof["label"].to_numpy(np.int8), country, floor=0.0)
     fold = fold_of(pd.Series(ids))
     rows = []
     for tf in FIRST_GRID:
@@ -287,7 +303,7 @@ def fit_final():
     OUT_MODEL.mkdir(parents=True, exist_ok=True)
     model.save_model(str(OUT_MODEL / "model.txt"), num_iteration=model.best_iteration)
     (OUT_MODEL / "config.json").write_text(json.dumps(
-        {"features": features, "t_first": decision["t_first"], "t_rest": decision["t_rest"],
+        {"features": features, "ownership": True, "t_first": decision["t_first"], "t_rest": decision["t_rest"],
          "country_t": decision["country_t"], "floor": FLOOR,
          "trained_on": "validation-split pairs (stage-1 E001_lgbm_xgb out-of-sample probabilities)",
          "best_iteration": model.best_iteration}, indent=2))
@@ -335,7 +351,10 @@ def apply_test(rescore: bool = True):
         ids = pd.Index(s1_all.loc[s1_all["country_key"] == country, "entity_id"])
         code = ids.get_indexer(frame["s1"]).astype(np.int64)
         cand, cand_ids = pd.factorize(frame["cand"])
-        scored = prepare(code, cand.astype(np.int64), frame["is_s2"].to_numpy() == 1, frame["p2"].to_numpy(np.float32),
+        prob = frame["p2"].to_numpy(np.float32)
+        if config.get("ownership"):
+            prob = ownership(frame["s1"].to_numpy(), frame["cand"].to_numpy(), prob)
+        scored = prepare(code, cand.astype(np.int64), frame["is_s2"].to_numpy() == 1, prob,
                          np.zeros(len(frame), np.int8), np.full(len(ids), country, dtype=object), floor=0.0)
         keep = select(scored, params)
         for c, r in zip(scored.code[keep], scored.cand[keep]):

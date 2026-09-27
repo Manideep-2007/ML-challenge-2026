@@ -46,5 +46,6 @@
   },
   "floor": 0.02,
   "trained_on": "validation-split pairs (stage-1 E001_lgbm_xgb out-of-sample probabilities)",
-  "best_iteration": 1528
+  "best_iteration": 1528,
+  "ownership": true
 }
