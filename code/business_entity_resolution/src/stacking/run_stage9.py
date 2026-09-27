@@ -50,6 +50,11 @@ def configure(variant: str):
         VARIANT.update({"name": "v2", "suffix": "_v2", "experiment": "E006", "evidence": True})
         OUT_MODEL = MODEL_ARTIFACTS / "collective_v2"
         REPORT = ROOT / "experiments" / "stage9" / "v2"
+    if variant == "v3c":   # v3b + transliterated-name features (E008)
+        VARIANT.update({"name": "v3c", "suffix": "_v3c", "experiment": "E008", "evidence": False,
+                        "universe": True, "translit": True})
+        OUT_MODEL = MODEL_ARTIFACTS / "collective_v3c"
+        REPORT = ROOT / "experiments" / "stage9" / "v3c"
     if variant in ("v3", "v3b"):
         # v3: v2 + universe name statistics (E007); v3b: v1 + universe (if E006 is rejected)
         VARIANT.update({"name": variant, "suffix": f"_{variant}", "experiment": "E007" if variant == "v3" else "E007b",
@@ -112,6 +117,11 @@ def validation_frame() -> pd.DataFrame:
     path = WORK / f"validation_collective{VARIANT['suffix']}.parquet"
     if path.exists():
         return pd.read_parquet(path)
+    if VARIANT.get("translit"):   # extend the cached v3b frame
+        frame = pd.read_parquet(WORK / "validation_collective_v3b.parquet")
+        frame = with_translit(frame, "validation")
+        frame.to_parquet(path)
+        return frame
     if VARIANT["universe"]:   # extend the cached base variant
         base = WORK / f"validation_collective{'_v2' if VARIANT['evidence'] else ''}.parquet"
         frame = pd.read_parquet(base)
@@ -143,6 +153,18 @@ def ground_truth():
     country = pd.read_parquet(NORMALIZED / "train_source1.parquet", columns=["entity_id", "country_key"]) \
         .set_index("entity_id")["country_key"].reindex(ids).to_numpy()
     return ids, true_counts, country
+
+
+def with_translit(frame: pd.DataFrame, split: str) -> pd.DataFrame:
+    from stacking.collective import transliteration_features
+    prefix = "train" if split == "validation" else "test"
+    s1 = pd.read_parquet(NORMALIZED / f"{prefix}_source1.parquet", columns=["entity_id", "name_raw"]).set_index("entity_id")["name_raw"]
+    ref = pd.concat([pd.read_parquet(NORMALIZED / f"{prefix}_source{i}.parquet", columns=["entity_id", "name_raw"])
+                     for i in (2, 3)]).set_index("entity_id")["name_raw"]
+    s1 = s1[s1.index.isin(set(frame["s1"]))]
+    ref = ref[ref.index.isin(set(frame["cand"]))]
+    t = transliteration_features(frame[["s1", "cand"]], s1, ref)
+    return pd.concat([frame.reset_index(drop=True), t.reset_index(drop=True)], axis=1)
 
 
 _UNIVERSE = {}
@@ -375,6 +397,8 @@ def apply_test(rescore: bool = True):
                 frame = with_evidence(frame, "test", country)
             if VARIANT["universe"]:
                 frame = with_universe(frame, "test", s1, ref)
+            if VARIANT.get("translit"):
+                frame = with_translit(frame, "test")
             frame["p2"] = model.predict(frame[config["features"]]).astype(np.float32)
             frame = frame[["s1", "cand", "is_s2", "p", "p2"]]
             frame.to_parquet(cache)
@@ -403,7 +427,7 @@ def apply_test(rescore: bool = True):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--variant", choices=["v1", "v2", "v3", "v3b"], default="v1")
+    parser.add_argument("--variant", choices=["v1", "v2", "v3", "v3b", "v3c"], default="v1")
     parser.add_argument("--evaluate", action="store_true")
     parser.add_argument("--fit", action="store_true")
     parser.add_argument("--apply-test", action="store_true")

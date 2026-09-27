@@ -48,12 +48,12 @@ training data.
 ```bash
 cd code/business_entity_resolution
 python -m src.main --split test --all-countries-in-subprocesses   # stage 1: candidates + pair probabilities
-python src/stacking/run_stage9.py --apply-test                    # stage 2: collective re-scoring -> final output/matching_results.tsv
+python src/stacking/run_stage9.py --variant v3b --apply-test      # stage 2: collective re-scoring -> final output/matching_results.tsv
 ```
 
-The second command uses the shipped `model_artifacts/collective/` model (config.json holds its
+The second command uses the shipped `model_artifacts/collective_v3b/` model (config.json holds its
 features, thresholds and the exclusivity-aware ownership rule). To retrain it from scratch:
-`python src/stacking/run_stage9.py --evaluate --fit` (needs the Stage 6 validation predictions).
+`python src/stacking/run_stage9.py --variant v3b --evaluate --fit` (needs the Stage 6 validation predictions).
 
 Test inference runs one country at a time, each in a fresh process (no true link
 crosses countries and every blocking channel is country-scoped, so this is exact;

@@ -137,6 +137,11 @@ a second LightGBM model (`src/stacking/`):
 - **Street-level evidence:** the street name is isolated (comma component with the house number,
   minus numbers, street-type words and particles) and compared; "same house number, different
   street" and dotted legal forms (S.A.S, S.A.R.L.) are explicit features.
+- **Universe name statistics (final model):** how many S1 records in the whole split share the
+  S1's name (and name + house number), how many S2/S3 records carry it, and how many S1 carry
+  the candidate's name. For address-less candidates the true-match rate is 72% when the S1 name is
+  unique and 3.6% when more than 20 S1 share it. Label-free; computed on the train universe for
+  validation and on the test universe for test.
 - **Exclusivity-aware ownership probability:** every S2/S3 record belongs to at most one S1, so
   competing S1 are alternatives: P(record → S1 a) = odds_a / (1 + Σ_i odds_i). An S1 can still
   receive many records.
@@ -144,7 +149,7 @@ a second LightGBM model (`src/stacking/`):
 The second stage is trained only on validation-split pairs, whose stage-1 probabilities are
 out-of-sample exactly as on test; it is evaluated with 4-fold cross-fitting over validation S1,
 and the decision thresholds are chosen on the other folds' out-of-fold scores. Decision: best
-candidate ≥ 0.50, further candidates ≥ 0.70 (France, unlabeled and shifted: best ≥ 0.65),
+candidate ≥ 0.50, further candidates ≥ 0.725 (France, unlabeled and shifted: best ≥ 0.65),
 caps 5 S2 / 6 S3.
 
 | Step (validation, 441,365 S1) | Macro F0.5 |
@@ -152,7 +157,8 @@ caps 5 S2 / 6 S3.
 | Stage 1 + Stage 7 decision rules | 0.97492 |
 | + collective second stage (threshold 0.65) | 0.97681 (90% CI of Δ: +0.00176…+0.00201) |
 | + separate first / other thresholds | 0.97715 |
-| + exclusivity-aware ownership probability | **0.97738** |
+| + exclusivity-aware ownership probability | 0.97738 |
+| + universe name statistics (S1 / S2-S3 records sharing the name, name + house number) | **0.97847** |
 
 Public leaderboard: 0.960 (stage 1) → 0.971 (second stage) — the gain on test is ~5× the
 validation gain, consistent with the sibling-business shift the second stage targets.
@@ -161,7 +167,7 @@ validation gain, consistent with the sibling-business shift the second stage tar
 
 ## 5. Results & Error Analysis
 
-- **F_0.5 Score (macro):** 0.97738 final (section 4.1); stage 1 alone 0.97492 (2-fold out-of-fold estimate;
+- **F_0.5 Score (macro):** 0.97847 final (section 4.1); stage 1 alone 0.97492 (2-fold out-of-fold estimate;
   precision 0.9875, recall 0.9447; US 0.9791, India 0.9687; empty-truth entities 0.968).
   Candidate ceiling 0.9917.
 - **Common false positives (wrong merges):** 91% are an extra candidate added to an S1 that also

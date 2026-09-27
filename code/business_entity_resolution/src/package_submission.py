@@ -28,15 +28,27 @@ EXCLUDE_SUFFIXES = {".pyc", ".log"}
 
 
 def validate() -> None:
+    """Official validator on matching_results.tsv (with --check-ids); candidate_pairs.tsv
+    (~200M IDs, too large for the official validator's in-memory sets) is checked by
+    main.check_candidate_tsv, which applies the same rules streamed."""
     result = subprocess.run(
         [sys.executable, str(ROOT / "challenge" / "utils" / "validate_submission.py"),
          "--matching", str(ROOT / "output" / "matching_results.tsv"),
-         "--candidate", str(ROOT / "output" / "candidate_pairs.tsv"),
-         "--test-dir", str(ROOT / "challenge" / "dataset" / "test")],
+         "--candidate", str(ROOT / "output" / "__skip__.tsv"),
+         "--test-dir", str(ROOT / "challenge" / "dataset" / "test"), "--check-ids"],
         capture_output=True, text=True)
     print(result.stdout, result.stderr)
     if result.returncode != 0:
         raise SystemExit("Validator failed; not packaging.")
+    sys.path.insert(0, str(SRC))
+    import pandas as pd
+    from main import check_candidate_tsv
+    s1 = set(pd.read_csv(ROOT / "challenge" / "dataset" / "test" / "test_source1.tsv", sep="	", dtype=str,
+                         usecols=["entity_id"], keep_default_na=False)["entity_id"])
+    check = check_candidate_tsv(ROOT / "output" / "candidate_pairs.tsv", s1, ROOT / "output" / "matching_results.tsv")
+    print("candidate_pairs.tsv check:", check)
+    if not check["ok"]:
+        raise SystemExit("candidate_pairs.tsv check failed; not packaging.")
 
 
 def code_files():
