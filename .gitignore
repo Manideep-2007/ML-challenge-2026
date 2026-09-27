@@ -24,3 +24,4 @@ experiments/
 
 # candidate_pairs.tsv (~3 GB) exceeds GitHub's file limit; it ships in the submission zip
 output/candidate_pairs.tsv
+InnovateX.zip
