@@ -126,3 +126,82 @@ def collective_features(pairs: pd.DataFrame, s1: pd.DataFrame, ref: pd.DataFrame
 
 def feature_names(frame: pd.DataFrame) -> list[str]:
     return [c for c in frame.columns if c not in ("s1", "cand", "label", "country", "fold")]
+
+
+# ------------------------------------------------------------------ E007: universe name statistics
+def universe_counts(s1_paths, ref_paths) -> dict:
+    """
+    How common a name is in the whole record universe of the split (no labels):
+    S1 records per (country, name), S1 per (country, name, house number) and S2/S3
+    records per (country, name). Validation uses the train universe, test the test
+    universe -- the same kind of statistic on both sides.
+    """
+    import pyarrow.parquet as pq
+    from features.street_features import first_number
+    cols = ["country_key", "name_content_compact", "address_nfkc"]
+    s1 = pd.concat([pq.read_table(p, columns=cols).to_pandas() for p in s1_paths], ignore_index=True)
+    s1["number"] = [first_number(a) for a in s1["address_nfkc"]]
+    ref = pd.concat([pq.read_table(p, columns=cols[:2]).to_pandas() for p in ref_paths], ignore_index=True)
+    return {
+        "s1_name": s1.groupby(["country_key", "name_content_compact"]).size(),
+        "s1_name_number": s1.groupby(["country_key", "name_content_compact", "number"]).size(),
+        "ref_name": ref.groupby(["country_key", "name_content_compact"]).size(),
+    }
+
+
+def universe_features(pairs: pd.DataFrame, s1: pd.DataFrame, ref: pd.DataFrame, counts: dict) -> pd.DataFrame:
+    a = s1.reindex(pairs["s1"].to_numpy())
+    b = ref.reindex(pairs["cand"].to_numpy())
+
+    def look(table, keys):
+        idx = pd.MultiIndex.from_arrays(keys)
+        return table.reindex(idx).fillna(0).to_numpy(np.float32)
+
+    ca, na, nb = a["country_key"].to_numpy(), a["name_content_compact"].to_numpy(), b["name_content_compact"].to_numpy()
+    f = pd.DataFrame(index=pairs.index)
+    f["u_s1_name_count"] = look(counts["s1_name"], [ca, na])
+    f["u_s1_name_number_count"] = look(counts["s1_name_number"], [ca, na, a["street_number"].to_numpy()])
+    f["u_ref_name_count"] = look(counts["ref_name"], [ca, na])
+    f["u_cand_name_s1_count"] = look(counts["s1_name"], [ca, nb])     # S1 carrying the candidate's name
+    f["u_refs_per_s1_name"] = f["u_ref_name_count"] / np.maximum(f["u_s1_name_count"], 1)
+    empty = na == ""
+    f.loc[empty, ["u_s1_name_count", "u_s1_name_number_count", "u_ref_name_count", "u_refs_per_s1_name"]] = np.nan
+    f.loc[nb == "", "u_cand_name_s1_count"] = np.nan
+    return f
+
+
+# ------------------------------------------------------------------ E008: transliterated names
+_VOWELS = str.maketrans("", "", "aeiouy")
+
+
+def transliterated(text: str) -> str:
+    """Latin rendering of any script (anyascii, ISC licence), casefolded alphanumerics."""
+    from anyascii import anyascii
+    from features.street_features import _NON_ALNUM
+    return " ".join(_NON_ALNUM.sub(" ", anyascii(text or "").casefold()).split())
+
+
+def skeleton(text: str) -> str:
+    """Consonant skeleton: 'sri bijnes praivet' -> 'srbjnsprvt' (vowel spelling varies across scripts)."""
+    out = text.replace(" ", "").translate(_VOWELS)
+    return "".join(c for i, c in enumerate(out) if i == 0 or c != out[i - 1])
+
+
+def transliteration_features(pairs: pd.DataFrame, s1_raw_names: pd.Series, ref_raw_names: pd.Series) -> pd.DataFrame:
+    """Name similarity after transliterating the candidate; NaN when the candidate name is Latin."""
+    a = s1_raw_names.reindex(pairs["s1"].to_numpy()).fillna("").to_numpy()
+    b = ref_raw_names.reindex(pairs["cand"].to_numpy()).fillna("").to_numpy()
+    non_latin = np.array([any(ord(ch) > 0x24F for ch in x) for x in b])
+    ta = np.array([transliterated(x) for x in a], dtype=object)
+    tb = np.array([transliterated(x) if nl else "" for x, nl in zip(b, non_latin)], dtype=object)
+    sa = np.array([skeleton(x) for x in ta], dtype=object)
+    sb = np.array([skeleton(x) for x in tb], dtype=object)
+    f = pd.DataFrame(index=pairs.index)
+    f["t_name_ratio"] = _sim(ta, tb, fuzz.ratio)
+    f["t_name_token_set_ratio"] = _sim(ta, tb, fuzz.token_set_ratio)
+    f["t_skeleton_ratio"] = _sim(sa, sb, fuzz.ratio)
+    f["t_skeleton_partial_ratio"] = _sim(sa, sb, fuzz.partial_ratio)
+    for c in f.columns:
+        f.loc[~non_latin, c] = np.nan
+    f["t_cand_non_latin"] = non_latin.astype(np.float32)
+    return f.astype(np.float32)

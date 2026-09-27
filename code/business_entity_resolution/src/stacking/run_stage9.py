@@ -40,7 +40,7 @@ WORK = ROOT / "artifacts" / "stacking"
 REPORT = ROOT / "experiments" / "stage9"
 MODEL_ARTIFACTS = SRC.parent / "model_artifacts"
 OUT_MODEL = MODEL_ARTIFACTS / "collective"
-VARIANT = {"name": "v1", "suffix": "", "experiment": "E005", "evidence": False}
+VARIANT = {"name": "v1", "suffix": "", "experiment": "E005", "evidence": False, "universe": False}
 
 
 def configure(variant: str):
@@ -50,6 +50,12 @@ def configure(variant: str):
         VARIANT.update({"name": "v2", "suffix": "_v2", "experiment": "E006", "evidence": True})
         OUT_MODEL = MODEL_ARTIFACTS / "collective_v2"
         REPORT = ROOT / "experiments" / "stage9" / "v2"
+    if variant in ("v3", "v3b"):
+        # v3: v2 + universe name statistics (E007); v3b: v1 + universe (if E006 is rejected)
+        VARIANT.update({"name": variant, "suffix": f"_{variant}", "experiment": "E007" if variant == "v3" else "E007b",
+                        "evidence": variant == "v3", "universe": True})
+        OUT_MODEL = MODEL_ARTIFACTS / f"collective_{variant}"
+        REPORT = ROOT / "experiments" / "stage9" / variant
 VALIDATION_PRED = ROOT / "artifacts" / "predictions" / "E001_lgbm_xgb_validation.parquet"
 VALIDATION_GT = ROOT / "experiments" / "stage2" / "validation_ground_truth.tsv"
 DECISION = (MODEL_ARTIFACTS if (MODEL_ARTIFACTS / "decision_params.json").exists()
@@ -106,6 +112,12 @@ def validation_frame() -> pd.DataFrame:
     path = WORK / f"validation_collective{VARIANT['suffix']}.parquet"
     if path.exists():
         return pd.read_parquet(path)
+    if VARIANT["universe"]:   # extend the cached base variant
+        base = WORK / f"validation_collective{'_v2' if VARIANT['evidence'] else ''}.parquet"
+        frame = pd.read_parquet(base)
+        frame = with_universe(frame, "validation")
+        frame.to_parquet(path)
+        return frame
     WORK.mkdir(parents=True, exist_ok=True)
     start = time.time()
     pred = pq.read_table(VALIDATION_PRED, filters=[("probability", ">=", FLOOR)]).to_pandas()
@@ -131,6 +143,24 @@ def ground_truth():
     country = pd.read_parquet(NORMALIZED / "train_source1.parquet", columns=["entity_id", "country_key"]) \
         .set_index("entity_id")["country_key"].reindex(ids).to_numpy()
     return ids, true_counts, country
+
+
+_UNIVERSE = {}
+
+
+def with_universe(frame: pd.DataFrame, split: str, s1=None, ref=None) -> pd.DataFrame:
+    """Append universe name statistics (stacking/collective.universe_features, E007)."""
+    from stacking.collective import universe_counts, universe_features
+    prefix = "train" if split == "validation" else "test"
+    if split not in _UNIVERSE:
+        _UNIVERSE[split] = universe_counts([NORMALIZED / f"{prefix}_source1.parquet"],
+                                           [NORMALIZED / f"{prefix}_source2.parquet", NORMALIZED / f"{prefix}_source3.parquet"])
+    if s1 is None:
+        s1 = load_text([NORMALIZED / f"{prefix}_source1.parquet"], set(frame["s1"]))
+        ref = load_text([NORMALIZED / f"{prefix}_source2.parquet", NORMALIZED / f"{prefix}_source3.parquet"],
+                        set(frame["cand"]))
+    u = universe_features(frame[["s1", "cand"]], s1, ref, _UNIVERSE[split])
+    return pd.concat([frame.reset_index(drop=True), u.reset_index(drop=True)], axis=1)
 
 
 def with_evidence(frame: pd.DataFrame, split: str, country: str | None = None) -> pd.DataFrame:
@@ -343,6 +373,8 @@ def apply_test(rescore: bool = True):
             frame = collective_features(pairs, s1, ref)
             if VARIANT["evidence"]:
                 frame = with_evidence(frame, "test", country)
+            if VARIANT["universe"]:
+                frame = with_universe(frame, "test", s1, ref)
             frame["p2"] = model.predict(frame[config["features"]]).astype(np.float32)
             frame = frame[["s1", "cand", "is_s2", "p", "p2"]]
             frame.to_parquet(cache)
@@ -371,7 +403,7 @@ def apply_test(rescore: bool = True):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--variant", choices=["v1", "v2"], default="v1")
+    parser.add_argument("--variant", choices=["v1", "v2", "v3", "v3b"], default="v1")
     parser.add_argument("--evaluate", action="store_true")
     parser.add_argument("--fit", action="store_true")
     parser.add_argument("--apply-test", action="store_true")

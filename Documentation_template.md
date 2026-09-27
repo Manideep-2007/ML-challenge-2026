@@ -119,11 +119,49 @@ S2/S3 exclusivity and per-country thresholds. Chosen: threshold 0.80, each S2/S3
 to at most one S1 (highest probability), caps of 5 (S2) and 6 (S3) matches. The score is flat
 for ±0.02 around the threshold.
 
+### 4.1 Second stage: collective matcher (final submission)
+
+Test diagnostics (no labels) showed a shift the validation split under-represents: in France
+4–5% of the confident S2/S3 records were wanted by two or more S1 (validation 0.1%) because the
+test contains *sibling businesses*: same name, same house number and city, different street and
+legal form ("Pessac Amicale SAS, 31 Rue de Flandre" vs "Pessac Amicale SARL, 31 Rue Socrate").
+Short French addresses are dominated by city/region tokens, so whole-address similarity cannot
+separate them. The final system therefore re-scores every plausible pair (stage-1 p ≥ 0.02) with
+a second LightGBM model (`src/stacking/`):
+
+- **Agreement with the S1's anchors** (its other candidates with p ≥ 0.9): name / address /
+  street similarity, exact-name and house-number agreement — records of one business agree with
+  each other, siblings do not.
+- **Probability structure within the S1:** rank, gap to best, second best, number of confident
+  candidates, rank within the candidate's source.
+- **Street-level evidence:** the street name is isolated (comma component with the house number,
+  minus numbers, street-type words and particles) and compared; "same house number, different
+  street" and dotted legal forms (S.A.S, S.A.R.L.) are explicit features.
+- **Exclusivity-aware ownership probability:** every S2/S3 record belongs to at most one S1, so
+  competing S1 are alternatives: P(record → S1 a) = odds_a / (1 + Σ_i odds_i). An S1 can still
+  receive many records.
+
+The second stage is trained only on validation-split pairs, whose stage-1 probabilities are
+out-of-sample exactly as on test; it is evaluated with 4-fold cross-fitting over validation S1,
+and the decision thresholds are chosen on the other folds' out-of-fold scores. Decision: best
+candidate ≥ 0.50, further candidates ≥ 0.70 (France, unlabeled and shifted: best ≥ 0.65),
+caps 5 S2 / 6 S3.
+
+| Step (validation, 441,365 S1) | Macro F0.5 |
+|---|---|
+| Stage 1 + Stage 7 decision rules | 0.97492 |
+| + collective second stage (threshold 0.65) | 0.97681 (90% CI of Δ: +0.00176…+0.00201) |
+| + separate first / other thresholds | 0.97715 |
+| + exclusivity-aware ownership probability | **0.97738** |
+
+Public leaderboard: 0.960 (stage 1) → 0.971 (second stage) — the gain on test is ~5× the
+validation gain, consistent with the sibling-business shift the second stage targets.
+
 ---
 
 ## 5. Results & Error Analysis
 
-- **F_0.5 Score (macro):** 0.97492 on the validation split (2-fold out-of-fold estimate;
+- **F_0.5 Score (macro):** 0.97738 final (section 4.1); stage 1 alone 0.97492 (2-fold out-of-fold estimate;
   precision 0.9875, recall 0.9447; US 0.9791, India 0.9687; empty-truth entities 0.968).
   Candidate ceiling 0.9917.
 - **Common false positives (wrong merges):** 91% are an extra candidate added to an S1 that also
